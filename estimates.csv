@@ -10,7 +10,7 @@ Task ID,Task Description,Estimated Time (hrs),Actual Time (hrs)
 3.2,User registration endpoint,0.25,0.57
 3.3,User login endpoint,0.25,0.46
 3.4,Get current user endpoint,0.25,0.3
-3.5,CRUD endpoints for users,0.5,
+3.5,CRUD endpoints for users,0.5,1.0
 4.1,Create task endpoint,0.25,
 4.2,List tasks endpoint,0.25,
 4.3,Get single task endpoint,0.25,
