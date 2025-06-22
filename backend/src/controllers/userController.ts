@@ -161,4 +161,72 @@ export async function statsTopUsers(req: Request, res: Response): Promise<void> 
     res.status(500).json({ message: 'Failed to fetch top users', error: JSON.stringify(err) });
   }
   logger.info('END statsTopUsers');
+}
+
+/**
+ * Get time logged per day for a user or all users (admin only)
+ * @route GET /api/users/stats/time-logged-per-day
+ * @access Admin
+ * @param {number} userId - User ID (optional)
+ * @param {string} startDate - Start date (YYYY-MM-DD)
+ * @param {string} endDate - End date (YYYY-MM-DD)
+ * @returns {object[]} 200 - List of time logged per day for each user
+ * @returns {Error} 403 - Forbidden if not admin
+ * @returns {Error} 500 - Failed to fetch time logged per day
+ */
+export async function statsTimeLoggedPerDay(req: Request, res: Response): Promise<void> {
+  logger.info('START statsTimeLoggedPerDay', { userId: req.user?.userId, query: req.query });
+  const isAdmin = req.user?.isAdmin;
+  const requestedUserId = req.query.userId ? Number(req.query.userId) : undefined;
+  const userId = isAdmin ? requestedUserId : req.user?.userId;
+  const startDate = req.query.startDate ? new Date(String(req.query.startDate)) : undefined;
+  const endDate = req.query.endDate ? new Date(String(req.query.endDate)) : undefined;
+
+  // Only allow non-admins to see their own data
+  if (!isAdmin && requestedUserId && requestedUserId !== req.user?.userId) {
+    res.status(403).json({ message: 'Forbidden' });
+    logger.info('END statsTimeLoggedPerDay');
+    return;
+  }
+
+  try {
+    const where: any = {};
+    if (userId) where.userId = userId;
+    if (startDate || endDate) where.createdAt = {};
+    if (startDate) where.createdAt.gte = startDate;
+    if (endDate) where.createdAt.lte = endDate;
+
+    // Group by userId and createdAt (date only)
+    const results = await prisma.task.groupBy({
+      by: ['userId', 'createdAt'],
+      _sum: { totalMinutes: true },
+      where,
+      orderBy: [
+        { userId: 'asc' },
+        { createdAt: 'asc' }
+      ]
+    });
+
+    // Get user info for all involved users
+    const userIds = Array.from(new Set(results.map(r => r.userId)));
+    const users = await prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, name: true, email: true },
+    });
+
+    // Format data per user
+    const userData = users.map(user => ({
+      userId: user.id,
+      name: user.name,
+      email: user.email,
+      data: results
+        .filter(r => r.userId === user.id)
+        .map(r => ({ date: r.createdAt.toISOString().slice(0, 10), totalMinutes: r._sum?.totalMinutes || 0 })) // Format date as YYYY-MM-DD
+    }));
+
+    res.status(200).json(userData);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch time logged per day', error: JSON.stringify(err) });
+  }
+  logger.info('END statsTimeLoggedPerDay');
 } 
