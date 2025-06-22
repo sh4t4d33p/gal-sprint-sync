@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient, User } from '../generated/prisma';
 import { SafeUser } from '../types/SafeUser';
 
 const prisma = new PrismaClient();
@@ -12,16 +12,16 @@ export async function getAllUsers(req: Request, res: Response): Promise<void> {
     return;
   }
   // Fetch all users, omit passwords
-  const users = await prisma.user.findMany();
+  const users: Array<User> = await prisma.user.findMany();
   const safeUsers: SafeUser[] = users.map(({ password, ...rest }) => rest);
   res.json(safeUsers);
 }
 
 // Get user by ID
 export async function getUserById(req: Request, res: Response): Promise<void> {
-  const userId = Number(req.params.id);
+  const userId: number = Number(req.params.id);
   // Fetch user by ID
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user: User | null = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
     res.status(404).json({ message: 'User not found' });
     return;
@@ -33,7 +33,7 @@ export async function getUserById(req: Request, res: Response): Promise<void> {
 
 // Update user (self or admin)
 export async function updateUser(req: Request, res: Response): Promise<void> {
-  const userId = Number(req.params.id);
+  const userId: number = Number(req.params.id);
   // Only allow self or admin to update
   if (!req.user || (req.user.userId !== userId && !req.user.isAdmin)) {
     res.status(403).json({ message: 'Forbidden' });
@@ -42,7 +42,7 @@ export async function updateUser(req: Request, res: Response): Promise<void> {
   // Only allow updating name and email (not password or isAdmin here)
   const { name, email } = req.body;
   try {
-    const updatedUser = await prisma.user.update({
+    const updatedUser: User = await prisma.user.update({
       where: { id: userId },
       data: { name, email },
     });
@@ -60,7 +60,7 @@ export async function deleteUser(req: Request, res: Response): Promise<void> {
     res.status(403).json({ message: 'Forbidden: Admins only' });
     return;
   }
-  const userId = Number(req.params.id);
+  const userId: number = Number(req.params.id);
   try {
     await prisma.user.delete({ where: { id: userId } });
     res.json({ message: 'User deleted' });
