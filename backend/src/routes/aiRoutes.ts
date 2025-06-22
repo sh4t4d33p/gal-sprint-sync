@@ -37,6 +37,8 @@ router.get('/suggest', getTaskDescriptionSuggestion);
  *         description: Task not found
  *       500:
  *         description: AI service error
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.post('/suggest', getTaskDescriptionSuggestion);
 

@@ -41,7 +41,7 @@ Task ID,Task Description,Estimated Time (hrs),Actual Time (hrs)
 ,Scaling Up,,
 10.1,Add support for environment-based config,0.25,0.25
 10.2,Enable horizontal scaling for backend (stateless),0.75,0.75
-10.3,Implement rate limiting and API throttling,0.5, 
+10.3,Implement rate limiting and API throttling,0.5,0.3
 ,Docker & Deployment,,
 11.1,Write Dockerfile,0.5,
 11.2,Write docker-compose,0.5,

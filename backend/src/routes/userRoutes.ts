@@ -23,6 +23,8 @@ router.use(authenticateJwt);
  *         description: Forbidden if not admin
  *       500:
  *         description: Internal server error
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.get('/', getAllUsers);
 
@@ -48,6 +50,8 @@ router.get('/', getAllUsers);
  *         description: User not found
  *       500:
  *         description: Internal server error
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.get('/:id', getUserById);
 
@@ -84,6 +88,8 @@ router.get('/:id', getUserById);
  *         description: Forbidden
  *       500:
  *         description: Update failed
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.put('/:id', updateUser);
 
@@ -109,6 +115,8 @@ router.put('/:id', updateUser);
  *         description: Forbidden
  *       500:
  *         description: Delete failed
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.delete('/:id', deleteUser);
 
@@ -128,6 +136,8 @@ router.delete('/:id', deleteUser);
  *         description: Forbidden if not admin
  *       500:
  *         description: Failed to fetch top users
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.get('/stats/top-users', statsTopUsers);
 
@@ -165,6 +175,8 @@ router.get('/stats/top-users', statsTopUsers);
  *         description: Forbidden if not admin
  *       500:
  *         description: Failed to fetch time logged per day
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.get('/stats/time-logged-per-day', statsTimeLoggedPerDay);
 

@@ -31,6 +31,8 @@ const router = Router();
  *         description: User already exists or invalid input
  *       500:
  *         description: Registration failed
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.post('/register', function(req: Request, res: Response, next: NextFunction) {
   authController.register(req, res).catch(next);
@@ -61,6 +63,8 @@ router.post('/register', function(req: Request, res: Response, next: NextFunctio
  *         description: Invalid credentials
  *       500:
  *         description: Login failed
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.post('/login', function(req: Request, res: Response, next: NextFunction) {
   authController.login(req, res).catch(next);
@@ -82,6 +86,8 @@ router.post('/login', function(req: Request, res: Response, next: NextFunction) 
  *         description: Unauthorized
  *       500:
  *         description: Failed to get current user
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.get('/current-user', authenticateJwt, async (req: Request, res: Response) => {
   await authController.getCurrentUser(req, res);

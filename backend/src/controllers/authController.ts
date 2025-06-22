@@ -17,6 +17,7 @@ const prisma = new PrismaClient();
  * @returns {object} 201 - User registered successfully
  * @returns {Error} 400 - User already exists or invalid input
  * @returns {Error} 500 - Registration failed
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function register(req: Request, res: Response): Promise<void> {
   logger.info('START register', { email: req.body.email, name: req.body.name });
@@ -57,6 +58,7 @@ export async function register(req: Request, res: Response): Promise<void> {
  * @returns {object} 200 - User logged in successfully
  * @returns {Error} 401 - Invalid credentials
  * @returns {Error} 500 - Login failed
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function login(req: Request, res: Response): Promise<void> {
   logger.info('START login', { email: req.body.email });
@@ -91,6 +93,7 @@ export async function login(req: Request, res: Response): Promise<void> {
  * @returns {object} 200 - Current user info
  * @returns {Error} 401 - Unauthorized
  * @returns {Error} 500 - Failed to get current user
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function getCurrentUser(req: Request, res: Response): Promise<void> {
   logger.info('START getCurrentUser', { userId: req.user?.userId });

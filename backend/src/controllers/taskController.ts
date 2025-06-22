@@ -17,6 +17,7 @@ const allowedStatuses: TaskStatus[] = [TaskStatus.ToDo, TaskStatus.InProgress, T
  * @returns {Task} 201 - Created task
  * @returns {Error} 401 - Unauthorized
  * @returns {Error} 500 - Task creation failed
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function createTask(req: Request, res: Response): Promise<void> {
   logger.info('START createTask', { userId: req.user?.userId, body: req.body });
@@ -53,6 +54,7 @@ export async function createTask(req: Request, res: Response): Promise<void> {
  * @access Authenticated
  * @returns {Task[]} 200 - List of tasks
  * @returns {Error} 500 - Failed to fetch tasks
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function listTasks(req: Request, res: Response): Promise<void> {
   logger.info('START listTasks', { userId: req.user?.userId });
@@ -79,6 +81,7 @@ export async function listTasks(req: Request, res: Response): Promise<void> {
  * @returns {Error} 404 - Task not found
  * @returns {Error} 403 - Forbidden
  * @returns {Error} 500 - Failed to fetch task
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function getTaskById(req: Request, res: Response): Promise<void> {
   logger.info('START getTaskById', { userId: req.user?.userId, taskId: req.params.id });
@@ -118,6 +121,7 @@ export async function getTaskById(req: Request, res: Response): Promise<void> {
  * @returns {Error} 403 - Forbidden
  * @returns {Error} 400 - Invalid status value
  * @returns {Error} 500 - Failed to update task
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function updateTask(req: Request, res: Response): Promise<void> {
   logger.info('START updateTask', { userId: req.user?.userId, taskId: req.params.id, body: req.body });
@@ -174,6 +178,7 @@ export async function updateTask(req: Request, res: Response): Promise<void> {
  * @returns {Error} 404 - Task not found
  * @returns {Error} 403 - Forbidden
  * @returns {Error} 500 - Failed to delete task
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function deleteTask(req: Request, res: Response): Promise<void> {
   logger.info('START deleteTask', { userId: req.user?.userId, taskId: req.params.id });
@@ -211,6 +216,7 @@ export async function deleteTask(req: Request, res: Response): Promise<void> {
  * @returns {Error} 404 - Task not found
  * @returns {Error} 403 - Forbidden
  * @returns {Error} 500 - Failed to update task progress
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function patchTaskProgress(req: Request, res: Response): Promise<void> {
   logger.info('START patchTaskProgress', { userId: req.user?.userId, taskId: req.params.id, body: req.body });

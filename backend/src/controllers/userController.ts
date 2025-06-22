@@ -12,6 +12,7 @@ const prisma = new PrismaClient();
  * @returns {SafeUser[]} 200 - List of users (without passwords)
  * @returns {Error} 403 - Forbidden if not admin
  * @returns {Error} 500 - Internal server error
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function getAllUsers(req: Request, res: Response): Promise<void> {
   logger.info('START getAllUsers', { userId: req.user?.userId });
@@ -39,6 +40,7 @@ export async function getAllUsers(req: Request, res: Response): Promise<void> {
  * @returns {SafeUser} 200 - User object (without password)
  * @returns {Error} 404 - User not found
  * @returns {Error} 500 - Internal server error
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function getUserById(req: Request, res: Response): Promise<void> {
   logger.info('START getUserById', { userId: req.user?.userId, targetId: req.params.id });
@@ -69,6 +71,7 @@ export async function getUserById(req: Request, res: Response): Promise<void> {
  * @returns {SafeUser} 200 - Updated user object (without password)
  * @returns {Error} 403 - Forbidden
  * @returns {Error} 500 - Update failed
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function updateUser(req: Request, res: Response): Promise<void> {
   logger.info('START updateUser', { userId: req.user?.userId, body: req.body });
@@ -101,6 +104,7 @@ export async function updateUser(req: Request, res: Response): Promise<void> {
  * @returns {string} 200 - Success message
  * @returns {Error} 403 - Forbidden
  * @returns {Error} 500 - Delete failed
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function deleteUser(req: Request, res: Response): Promise<void> {
   logger.info('START deleteUser', { userId: req.user?.userId, targetId: req.params.id });
@@ -126,6 +130,7 @@ export async function deleteUser(req: Request, res: Response): Promise<void> {
  * @returns {object[]} 200 - List of top users with totalMinutes
  * @returns {Error} 403 - Forbidden if not admin
  * @returns {Error} 500 - Failed to fetch top users
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function statsTopUsers(req: Request, res: Response): Promise<void> {
   logger.info('START statsTopUsers', { userId: req.user?.userId });
@@ -173,6 +178,7 @@ export async function statsTopUsers(req: Request, res: Response): Promise<void> 
  * @returns {object[]} 200 - List of time logged per day for each user
  * @returns {Error} 403 - Forbidden if not admin
  * @returns {Error} 500 - Failed to fetch time logged per day
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function statsTimeLoggedPerDay(req: Request, res: Response): Promise<void> {
   logger.info('START statsTimeLoggedPerDay', { userId: req.user?.userId, query: req.query });

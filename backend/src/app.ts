@@ -8,6 +8,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import dotenv from 'dotenv';
 import logger from './utils/logger';
+import rateLimit from 'express-rate-limit';
 dotenv.config();
 
 const app = express();
@@ -56,6 +57,18 @@ app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 // Mount AI routes
 app.use('/api/ai', aiRoutes);
+
+// Rate limiting middleware
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: { message: 'Too many requests, please try again later.' },
+  handler: (req, res, next, options) => {
+    logger.warn('Rate limit exceeded', { ip: req.ip, url: req.originalUrl });
+    res.status(options.statusCode).json(options.message);
+  }
+});
+app.use(limiter);
 
 app.get('/', function(req, res) {
   res.send('SprintSync Backend Running');

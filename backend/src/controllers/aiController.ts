@@ -14,6 +14,7 @@ const prisma: PrismaClient = new PrismaClient();
  * @returns {Error} 400 - Missing or invalid taskId
  * @returns {Error} 404 - Task not found
  * @returns {Error} 500 - Failed to generate description
+ * @returns {Error} 429 - Too many requests, rate limit exceeded
  */
 export async function getTaskDescriptionSuggestion(req: Request, res: Response): Promise<void> {
   logger.info('START getTaskDescriptionSuggestion', { userId: req.user?.userId, taskId: req.query.taskId });

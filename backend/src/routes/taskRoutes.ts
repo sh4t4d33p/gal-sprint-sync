@@ -23,6 +23,8 @@ router.use(authenticateJwt);
  *         description: Forbidden
  *       500:
  *         description: Failed to fetch tasks
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.get('/', listTasks);
 
@@ -50,6 +52,8 @@ router.get('/', listTasks);
  *         description: Task not found
  *       500:
  *         description: Failed to fetch task
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.get('/:id', getTaskById);
 
@@ -85,6 +89,8 @@ router.get('/:id', getTaskById);
  *         description: Unauthorized
  *       500:
  *         description: Task creation failed
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.post('/', createTask);
 
@@ -133,6 +139,8 @@ router.post('/', createTask);
  *         description: Task not found
  *       500:
  *         description: Failed to update task
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.put('/:id', updateTask);
 
@@ -160,6 +168,8 @@ router.put('/:id', updateTask);
  *         description: Task not found
  *       500:
  *         description: Delete failed
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.delete('/:id', deleteTask);
 
@@ -199,6 +209,8 @@ router.delete('/:id', deleteTask);
  *         description: Task not found
  *       500:
  *         description: Failed to update task status
+ *       429:
+ *         description: Too many requests, rate limit exceeded
  */
 router.patch('/:id/status', patchTaskProgress);
 
