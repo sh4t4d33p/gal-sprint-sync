@@ -6,29 +6,37 @@ const prisma = new PrismaClient();
 
 // Get all users (admin only)
 export async function getAllUsers(req: Request, res: Response): Promise<void> {
-  // Check if requester is admin
-  if (!req.user?.isAdmin) {
-    res.status(403).json({ message: 'Forbidden: Admins only' });
-    return;
+  try {
+    // Check if requester is admin
+    if (!req.user?.isAdmin) {
+      res.status(403).json({ message: 'Forbidden: Admins only' });
+      return;
+    }
+    // Fetch all users, omit passwords
+    const users: Array<User> = await prisma.user.findMany();
+    const safeUsers: SafeUser[] = users.map(({ password, ...rest }) => rest);
+    res.status(200).json(safeUsers);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch users', error: JSON.stringify(err) });
   }
-  // Fetch all users, omit passwords
-  const users: Array<User> = await prisma.user.findMany();
-  const safeUsers: SafeUser[] = users.map(({ password, ...rest }) => rest);
-  res.status(200).json(safeUsers);
 }
 
 // Get user by ID
 export async function getUserById(req: Request, res: Response): Promise<void> {
-  const userId: number = Number(req.params.id);
-  // Fetch user by ID
-  const user: User | null = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) {
-    res.status(404).json({ message: 'User not found' });
-    return;
+  try {
+    const userId: number = Number(req.params.id);
+    // Fetch user by ID
+    const user: User | null = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    // Omit password from response
+    const { password, ...safeUser } = user;
+    res.status(200).json(safeUser as SafeUser);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch user', error: JSON.stringify(err) });
   }
-  // Omit password from response
-  const { password, ...safeUser } = user;
-  res.status(200).json(safeUser as SafeUser);
 }
 
 // Update user (self or admin)
@@ -49,7 +57,7 @@ export async function updateUser(req: Request, res: Response): Promise<void> {
     const { password, ...safeUser } = updatedUser;
     res.status(200).json(safeUser as SafeUser);
   } catch (err) {
-    res.status(400).json({ message: 'Update failed', error: err });
+    res.status(400).json({ message: 'Update failed', error: JSON.stringify(err) });
   }
 }
 
@@ -65,6 +73,6 @@ export async function deleteUser(req: Request, res: Response): Promise<void> {
     await prisma.user.delete({ where: { id: userId } });
     res.status(200).json({ message: 'User deleted' });
   } catch (err) {
-    res.status(400).json({ message: 'Delete failed', error: err });
+    res.status(400).json({ message: 'Delete failed', error: JSON.stringify(err) });
   }
 } 

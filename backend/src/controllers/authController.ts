@@ -33,7 +33,7 @@ export async function register(req: Request, res: Response): Promise<void> {
     const { password: _, ...safeUser } = user;
     res.status(201).json({ token, user: safeUser as SafeUser });
   } catch (err) {
-    res.status(500).json({ message: 'Registration failed', error: err });
+    res.status(500).json({ message: 'Registration failed', error: JSON.stringify(err) });
   }
 }
 
@@ -60,7 +60,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     const { password: _, ...safeUser } = user;
     res.status(200).json({ token, user: safeUser as SafeUser });
   } catch (err) {
-    res.status(500).json({ message: 'Login failed', error: err });
+    res.status(500).json({ message: 'Login failed', error: JSON.stringify(err) });
   }
 }
 
@@ -76,6 +76,6 @@ export async function getCurrentUser(req: Request, res: Response): Promise<void>
     }
     res.status(200).json({ user });
   } catch (err) {
-    res.status(500).json({ message: 'Failed to get current user', error: err });
+    res.status(500).json({ message: 'Failed to get current user', error: JSON.stringify(err) });
   }
 }

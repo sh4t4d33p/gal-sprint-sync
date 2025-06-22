@@ -26,7 +26,7 @@ export async function createTask(req: Request, res: Response): Promise<void> {
     });
     res.status(201).json(task);
   } catch (err) {
-    res.status(400).json({ message: 'Task creation failed', error: err });
+    res.status(400).json({ message: 'Task creation failed', error: JSON.stringify(err) });
   }
 }
 
@@ -41,7 +41,7 @@ export async function listTasks(req: Request, res: Response): Promise<void> {
     });
     res.status(200).json(tasks);
   } catch (err) {
-    res.status(400).json({ message: 'Failed to fetch tasks', error: err });
+    res.status(400).json({ message: 'Failed to fetch tasks', error: JSON.stringify(err) });
   }
 }
 
@@ -63,7 +63,7 @@ export async function getTaskById(req: Request, res: Response): Promise<void> {
     }
     res.status(200).json(task);
   } catch (err) {
-    res.status(400).json({ message: 'Failed to fetch task', error: err });
+    res.status(400).json({ message: 'Failed to fetch task', error: JSON.stringify(err) });
   }
 }
 
@@ -100,7 +100,7 @@ export async function updateTask(req: Request, res: Response): Promise<void> {
     });
     res.status(200).json(updatedTask);
   } catch (err) {
-    res.status(400).json({ message: 'Failed to update task', error: err });
+    res.status(400).json({ message: 'Failed to update task', error: JSON.stringify(err) });
   }
 }
 
@@ -123,7 +123,7 @@ export async function deleteTask(req: Request, res: Response): Promise<void> {
     await prisma.task.delete({ where: { id: taskId } });
     res.status(200).json({ message: 'Task deleted' });
   } catch (err) {
-    res.status(400).json({ message: 'Failed to delete task', error: err });
+    res.status(400).json({ message: 'Failed to delete task', error: JSON.stringify(err) });
   }
 }
 
@@ -169,6 +169,6 @@ export async function patchTaskProgress(req: Request, res: Response): Promise<vo
     });
     res.status(200).json(updatedTask);
   } catch (err) {
-    res.status(400).json({ message: 'Failed to update task progress', error: err });
+    res.status(400).json({ message: 'Failed to update task progress', error: JSON.stringify(err) });
   }
 } 
