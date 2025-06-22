@@ -13,3 +13,25 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+/// The main user of the system. isAdmin controls admin privileges.
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  isAdmin   Boolean  @default(false)
+  tasks     Task[]
+}
+
+/// A task assigned to a user, with status and time tracking.
+model Task {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  status       String   // e.g., "To Do", "In Progress", "Done"
+  totalMinutes Int      @default(0)
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
