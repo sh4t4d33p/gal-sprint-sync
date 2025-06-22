@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllUsers, getUserById, updateUser, deleteUser } from '../controllers/userController';
+import { getAllUsers, getUserById, updateUser, deleteUser, statsTopUsers } from '../controllers/userController';
 import { authenticateJwt } from '../middleware/authMiddleware';
 
 const router = Router();
@@ -111,5 +111,24 @@ router.put('/:id', updateUser);
  *         description: Delete failed
  */
 router.delete('/:id', deleteUser);
+
+/**
+ * @openapi
+ * /api/users/stats/top-users:
+ *   get:
+ *     summary: Get top users by total minutes logged (admin only)
+ *     tags:
+ *       - Users
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of top users with totalMinutes
+ *       403:
+ *         description: Forbidden if not admin
+ *       500:
+ *         description: Failed to fetch top users
+ */
+router.get('/stats/top-users', statsTopUsers);
 
 export default router; 
