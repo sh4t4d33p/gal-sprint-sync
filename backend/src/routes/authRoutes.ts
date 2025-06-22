@@ -5,24 +5,83 @@ import { authenticateJwt } from '../middleware/authMiddleware';
 const router = Router();
 
 /**
- * @route POST /register
- * @desc Register a new user
+ * @openapi
+ * /api/auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: User already exists or invalid input
+ *       500:
+ *         description: Registration failed
  */
 router.post('/register', function(req: Request, res: Response, next: NextFunction) {
   authController.register(req, res).catch(next);
 });
 
 /**
- * @route POST /login
- * @desc Login a user
+ * @openapi
+ * /api/auth/login:
+ *   post:
+ *     summary: Login a user
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User logged in successfully
+ *       401:
+ *         description: Invalid credentials
+ *       500:
+ *         description: Login failed
  */
 router.post('/login', function(req: Request, res: Response, next: NextFunction) {
   authController.login(req, res).catch(next);
 });
 
 /**
- * @route GET /current-user
- * @desc Get current user info (protected)
+ * @openapi
+ * /api/auth/current-user:
+ *   get:
+ *     summary: Get current user info
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user info
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Failed to get current user
  */
 router.get('/current-user', authenticateJwt, async (req: Request, res: Response) => {
   await authController.getCurrentUser(req, res);

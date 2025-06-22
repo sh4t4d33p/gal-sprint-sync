@@ -3,13 +3,23 @@ import { PrismaClient, User } from '../generated/prisma';
 import { hashPassword, comparePassword, signJwt } from '../services/authService';
 import { SafeUser } from '../types/SafeUser';
 import { UserPayload } from '../types/UserPayload';
+import logger from '../utils/logger';
 
 const prisma = new PrismaClient();
 
 /**
  * Register a new user
+ * @route POST /api/auth/register
+ * @access Public
+ * @body {string} email - User email
+ * @body {string} password - User password
+ * @body {string} name - User name
+ * @returns {object} 201 - User registered successfully
+ * @returns {Error} 400 - User already exists or invalid input
+ * @returns {Error} 500 - Registration failed
  */
 export async function register(req: Request, res: Response): Promise<void> {
+  logger.info('START register', { email: req.body.email, name: req.body.name });
   const { email, password, name } = req.body;
   try {
     // Check if user already exists
@@ -35,12 +45,21 @@ export async function register(req: Request, res: Response): Promise<void> {
   } catch (err) {
     res.status(500).json({ message: 'Registration failed', error: JSON.stringify(err) });
   }
+  logger.info('END register', { email: req.body.email });
 }
 
 /**
  * Login a user
+ * @route POST /api/auth/login
+ * @access Public
+ * @body {string} email - User email
+ * @body {string} password - User password
+ * @returns {object} 200 - User logged in successfully
+ * @returns {Error} 401 - Invalid credentials
+ * @returns {Error} 500 - Login failed
  */
 export async function login(req: Request, res: Response): Promise<void> {
+  logger.info('START login', { email: req.body.email });
   const { email, password } = req.body;
   try {
     const user: User | null = await prisma.user.findUnique({ where: { email } });
@@ -62,12 +81,19 @@ export async function login(req: Request, res: Response): Promise<void> {
   } catch (err) {
     res.status(500).json({ message: 'Login failed', error: JSON.stringify(err) });
   }
+  logger.info('END login');
 }
 
 /**
  * Get current user info (requires auth middleware)
+ * @route GET /api/auth/current-user
+ * @access Authenticated
+ * @returns {object} 200 - Current user info
+ * @returns {Error} 401 - Unauthorized
+ * @returns {Error} 500 - Failed to get current user
  */
 export async function getCurrentUser(req: Request, res: Response): Promise<void> {
+  logger.info('START getCurrentUser', { userId: req.user?.userId });
   try {
     const user: UserPayload | undefined = req.user;
     if (!user) {
@@ -78,4 +104,5 @@ export async function getCurrentUser(req: Request, res: Response): Promise<void>
   } catch (err) {
     res.status(500).json({ message: 'Failed to get current user', error: JSON.stringify(err) });
   }
+  logger.info('END getCurrentUser');
 }
