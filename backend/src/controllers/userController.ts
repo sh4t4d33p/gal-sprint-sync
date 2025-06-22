@@ -14,7 +14,7 @@ export async function getAllUsers(req: Request, res: Response): Promise<void> {
   // Fetch all users, omit passwords
   const users: Array<User> = await prisma.user.findMany();
   const safeUsers: SafeUser[] = users.map(({ password, ...rest }) => rest);
-  res.json(safeUsers);
+  res.status(200).json(safeUsers);
 }
 
 // Get user by ID
@@ -28,7 +28,7 @@ export async function getUserById(req: Request, res: Response): Promise<void> {
   }
   // Omit password from response
   const { password, ...safeUser } = user;
-  res.json(safeUser as SafeUser);
+  res.status(200).json(safeUser as SafeUser);
 }
 
 // Update user (self or admin)
@@ -47,7 +47,7 @@ export async function updateUser(req: Request, res: Response): Promise<void> {
       data: { name, email },
     });
     const { password, ...safeUser } = updatedUser;
-    res.json(safeUser as SafeUser);
+    res.status(200).json(safeUser as SafeUser);
   } catch (err) {
     res.status(400).json({ message: 'Update failed', error: err });
   }
@@ -63,7 +63,7 @@ export async function deleteUser(req: Request, res: Response): Promise<void> {
   const userId: number = Number(req.params.id);
   try {
     await prisma.user.delete({ where: { id: userId } });
-    res.json({ message: 'User deleted' });
+    res.status(200).json({ message: 'User deleted' });
   } catch (err) {
     res.status(400).json({ message: 'Delete failed', error: err });
   }

@@ -58,7 +58,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     const token: string = signJwt({ userId: user.id, email: user.email, isAdmin: user.isAdmin });
     // Omit password from response
     const { password: _, ...safeUser } = user;
-    res.json({ token, user: safeUser as SafeUser });
+    res.status(200).json({ token, user: safeUser as SafeUser });
   } catch (err) {
     res.status(500).json({ message: 'Login failed', error: err });
   }
@@ -68,10 +68,14 @@ export async function login(req: Request, res: Response): Promise<void> {
  * Get current user info (requires auth middleware)
  */
 export async function getCurrentUser(req: Request, res: Response): Promise<void> {
-  const user: UserPayload | undefined = req.user;
-  if (!user) {
-    res.status(401).json({ message: 'Unauthorized' });
-    return;
+  try {
+    const user: UserPayload | undefined = req.user;
+    if (!user) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+    res.status(200).json({ user });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to get current user', error: err });
   }
-  res.json({ user });
 }

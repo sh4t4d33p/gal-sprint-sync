@@ -2,6 +2,7 @@
 import express from 'express';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
+import taskRoutes from './routes/taskRoutes';
 
 const app = express();
 app.use(express.json());
@@ -10,6 +11,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 // Mount user routes
 app.use('/api/users', userRoutes);
+// Mount task routes
+app.use('/api/tasks', taskRoutes);
 
 app.get('/', function(req, res) {
   res.send('SprintSync Backend Running');

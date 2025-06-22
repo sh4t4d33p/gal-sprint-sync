@@ -24,12 +24,18 @@ model User {
   tasks     Task[]
 }
 
+enum TaskStatus {
+  ToDo        // 'To Do'
+  InProgress  // 'In Progress'
+  Done        // 'Done'
+}
+
 /// A task assigned to a user, with status and time tracking.
 model Task {
   id           Int      @id @default(autoincrement())
   title        String
   description  String
-  status       String   // e.g., "To Do", "In Progress", "Done"
+  status       TaskStatus
   totalMinutes Int      @default(0)
   userId       Int
   user         User     @relation(fields: [userId], references: [id])
