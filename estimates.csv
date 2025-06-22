@@ -34,7 +34,7 @@ Task ID,Task Description,Estimated Time (hrs),Actual Time (hrs)
 8.1,Implement Kanban drag-and-drop board,1.5,
 8.2,Add analytics chart (time logged per user per day),1.0,0.5
 8.3,Implement /stats/top-users endpoint,0.5,0.4
-8.4,Admin can assign tasks to others,0.5,
+8.4,Admin can assign tasks to others,0.5,0.3
 8.5,Write unit/integration tests,1.0,
 ,Performance & Efficiency,,
 9.1,Optimize frontend rendering and bundle size,0.5,

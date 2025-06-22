@@ -9,10 +9,11 @@ const allowedStatuses: TaskStatus[] = [TaskStatus.ToDo, TaskStatus.InProgress, T
 /**
  * Create a new task
  * @route POST /api/tasks
- * @access Authenticated
+ * @access Authenticated (admin can assign to others)
  * @body {string} title - Task title
  * @body {string} description - Task description
  * @body {string} status - Task status (ToDo, InProgress, Done)
+ * @body {number} userId - User ID to assign (admin only, optional)
  * @returns {Task} 201 - Created task
  * @returns {Error} 401 - Unauthorized
  * @returns {Error} 500 - Task creation failed
@@ -20,11 +21,14 @@ const allowedStatuses: TaskStatus[] = [TaskStatus.ToDo, TaskStatus.InProgress, T
 export async function createTask(req: Request, res: Response): Promise<void> {
   logger.info('START createTask', { userId: req.user?.userId, body: req.body });
   // Extract task data from request body
-  const { title, description, status }: { title: string; description: string; status: string } = req.body;
-  // Get userId from authenticated user
-  const userId: number | undefined = req.user?.userId;
-  if (!userId) {
+  const { title, description, status, userId: bodyUserId }: { title: string; description: string; status: string; userId?: number } = req.body;
+  const userId = req.user?.userId;
+  const isAdmin = req.user?.isAdmin;
+  // If admin, use the userId from the request body, otherwise use the userId from the authenticated user
+  const assignedUserId = isAdmin && bodyUserId ? bodyUserId : userId;
+  if (!assignedUserId) {
     res.status(401).json({ message: 'Unauthorized' });
+    logger.info('END createTask');
     return;
   }
   // Validate and cast status
@@ -34,7 +38,7 @@ export async function createTask(req: Request, res: Response): Promise<void> {
   try {
     // Always set totalMinutes to 0 on creation, ignore any client value
     const task: Task = await prisma.task.create({
-      data: { title, description, status: statusValue, userId, totalMinutes: 0 },
+      data: { title, description, status: statusValue, userId: assignedUserId, totalMinutes: 0 },
     });
     res.status(201).json(task);
   } catch (err) {
@@ -102,12 +106,13 @@ export async function getTaskById(req: Request, res: Response): Promise<void> {
 /**
  * Update task (admin: any, user: own)
  * @route PUT /api/tasks/:id
- * @access Authenticated
+ * @access Authenticated (admin can reassign)
  * @param {number} id - Task ID
  * @body {string} title - New title
  * @body {string} description - New description
  * @body {string} status - New status
  * @body {number} totalMinutes - New total minutes
+ * @body {number} userId - User ID to assign (admin only, optional)
  * @returns {Task} 200 - Updated task
  * @returns {Error} 404 - Task not found
  * @returns {Error} 403 - Forbidden
@@ -119,16 +124,18 @@ export async function updateTask(req: Request, res: Response): Promise<void> {
   const taskId: number = Number(req.params.id);
   const userId: number | undefined = req.user?.userId;
   const isAdmin: boolean | undefined = req.user?.isAdmin;
-  const { title, description, status, totalMinutes }: { title?: string; description?: string; status?: string; totalMinutes?: number } = req.body;
+  const { title, description, status, totalMinutes, userId: bodyUserId }: { title?: string; description?: string; status?: string; totalMinutes?: number; userId?: number } = req.body;
   try {
     const task: Task | null = await prisma.task.findUnique({ where: { id: taskId } });
     if (!task) {
       res.status(404).json({ message: 'Task not found' });
+      logger.info('END updateTask');
       return;
     }
     // Only allow if admin or owner
     if (!isAdmin && task.userId !== userId) {
       res.status(403).json({ message: 'Forbidden' });
+      logger.info('END updateTask');
       return;
     }
     // Validate and cast status if provided
@@ -136,14 +143,20 @@ export async function updateTask(req: Request, res: Response): Promise<void> {
     if (status !== undefined) {
       if (!allowedStatuses.includes(status as TaskStatus)) {
         res.status(400).json({ message: 'Invalid status value' });
+        logger.info('END updateTask');
         return;
       }
       statusValue = status as TaskStatus;
     }
+    // Allow admin to reassign userId
+    let updateData: any = { title, description, status: statusValue, totalMinutes };
+    if (isAdmin && bodyUserId) {
+      updateData.userId = bodyUserId;
+    }
     // Update allowed fields, including totalMinutes
     const updatedTask: Task = await prisma.task.update({
       where: { id: taskId },
-      data: { title, description, status: statusValue, totalMinutes },
+      data: updateData,
     });
     res.status(200).json(updatedTask);
   } catch (err) {

@@ -57,7 +57,7 @@ router.get('/:id', getTaskById);
  * @openapi
  * /api/tasks:
  *   post:
- *     summary: Create a new task
+ *     summary: Create a new task (admin can assign to others)
  *     tags:
  *       - Tasks
  *     security:
@@ -75,6 +75,9 @@ router.get('/:id', getTaskById);
  *                 type: string
  *               totalMinutes:
  *                 type: integer
+ *               userId:
+ *                 type: integer
+ *                 description: User ID to assign (admin only, optional)
  *     responses:
  *       201:
  *         description: Created task
@@ -89,7 +92,7 @@ router.post('/', createTask);
  * @openapi
  * /api/tasks/{id}:
  *   put:
- *     summary: Update a task
+ *     summary: Update a task (admin can reassign)
  *     tags:
  *       - Tasks
  *     security:
@@ -116,6 +119,9 @@ router.post('/', createTask);
  *               status:
  *                 type: string
  *                 enum: [ToDo, InProgress, Done]
+ *               userId:
+ *                 type: integer
+ *                 description: User ID to assign (admin only, optional)
  *     responses:
  *       200:
  *         description: Updated task
