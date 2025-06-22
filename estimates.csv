@@ -1,9 +1,9 @@
 Task ID,Task Description,Estimated Time (hrs),Actual Time (hrs)
-# Core Tasks
-1.1,Create repo, README, initial commit,0.25,
-1.2,Create estimates.csv, commit initial estimates,0.25,
-2.1,Initialize backend project,0.5,
-2.2,Set up DB connection/config,0.5,
+,Core Tasks,,
+1.1,Create repo, README, initial commit,0.25,0.2
+1.2,Create estimates.csv, commit initial estimates,0.25,0.2
+2.1,Initialize backend project,0.5,0.5
+2.2,Set up DB connection/config,0.5,0.7
 2.3,Define User model,0.25,
 2.4,Define Task model,0.25,
 3.1,Implement authentication,0.75,
@@ -33,21 +33,18 @@ Task ID,Task Description,Estimated Time (hrs),Actual Time (hrs)
 8.5,Button to invoke /ai/suggest,0.25,
 8.6,Basic responsive styling,0.25,
 9.1,Update README,0.25,
-
-# Optional Stretch Goals
+,Optional Stretch Goals,,
 10.1,Implement Kanban drag-and-drop board,1.5,
 10.2,Add analytics chart (time logged per user per day),1.0,
 10.3,Implement /stats/top-users endpoint,0.5,
 10.4,Admin can assign tasks to others,0.5,
 10.8,Write unit/integration tests,1.0,
-
-# Performance & Efficiency
+,Performance & Efficiency,,
 11.1,Profile backend endpoints and optimize queries,0.75,
 11.2,Implement backend caching (e.g., Redis),0.75,
 11.3,Optimize frontend rendering and bundle size,0.5,
 11.4,Implement lazy loading for large data sets,0.5,
-
-# Scaling Up
+,Scaling Up,,
 12.1,Add support for environment-based config,0.25,
 12.2,Enable horizontal scaling for backend (stateless),0.75,
 12.3,Set up load balancer for backend,0.75,
