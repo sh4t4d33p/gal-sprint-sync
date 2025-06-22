@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev src/app.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha -r ts-node/register -r ./src/__tests__/test-setup.ts src/__tests__/**/*.test.ts"
   },
   "keywords": [],
   "author": "",
@@ -25,12 +25,21 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/chai": "^4.3.20",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^24.0.3",
+    "@types/sinon": "^17.0.4",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
+    "chai": "^4.5.0",
+    "mocha": "^10.8.2",
+    "node-mocks-http": "^1.17.2",
     "prisma": "^6.10.1",
+    "rewire": "^8.0.0",
+    "sinon": "^17.0.1",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   }
