@@ -23,12 +23,12 @@ Task ID,Task Description,Estimated Time (hrs),Actual Time (hrs)
 6.2,Structured logging for API calls,0.25,0.7
 6.3,Error logging with stack traces,0.25,0.5
 6.4,Seed DB with demo data,0.25,0.25
-7.1,Initialize frontend project,0.5,
+7.1,Initialize frontend project,0.5,0.5
 7.2,Task list view with inline status change,0.75,
 7.3,Create/edit task form/modal,0.5,
-7.4,User authentication flow,0.5,
+7.4,User authentication flow,0.5,1.0
 7.5,Button to invoke /ai/suggest,0.25,
-7.6,Basic responsive styling,0.25,
+7.6,Basic responsive styling,0.25,0.4
 7.7,Update README,0.25,
 ,Optional Stretch Goals,,
 8.1,Implement Kanban drag-and-drop board,1.5,
