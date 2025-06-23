@@ -3,9 +3,14 @@ import { Box, Tabs, Tab, Paper, Typography } from '@mui/material';
 import Logo from '../components/Logo/Logo';
 import LoginForm from '../components/LoginForm/LoginForm';
 import RegisterForm from '../components/RegisterForm/RegisterForm';
+import { useUser } from '../UserContext';
+import { Navigate } from 'react-router-dom';
+import type { ReactElement } from 'react';
 
-function AuthPage() {
+function AuthPage(): ReactElement {
   const [tab, setTab] = useState(0);
+  const { user } = useUser();
+  if (user) return <Navigate to="/board" replace />;
 
   return (
     <Box minHeight="100vh" width="100vw" display="flex" alignItems="center" justifyContent="center" bgcolor="background.default">
