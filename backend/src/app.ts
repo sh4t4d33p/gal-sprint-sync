@@ -1,5 +1,6 @@
 /// <reference path="./types/express.d.ts" />
 import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import taskRoutes from './routes/taskRoutes';
@@ -13,6 +14,12 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+// CORS middleware
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true,
+}));
 
 // Request logging middleware
 app.use((req, res, next) => {
