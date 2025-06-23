@@ -9,6 +9,7 @@ import BoardPage from './routes/BoardPage';
 import AnalyticsPage from './routes/AnalyticsPage';
 import UsersPage from './routes/UsersPage';
 import ProfilePage from './routes/ProfilePage';
+import TopUsersPage from './routes/TopUsersPage';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
               <Route path="/board" element={<BoardPage />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
               <Route path="/users" element={<UsersPage />} />
+              <Route path="/top-users" element={<TopUsersPage />} />
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" />} />

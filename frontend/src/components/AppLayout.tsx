@@ -3,6 +3,7 @@ import { Box, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, AppBa
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import PeopleIcon from '@mui/icons-material/People';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useUser } from '../UserContext';
 import { Outlet, useNavigate, Link as RouterLink } from 'react-router-dom';
@@ -50,12 +51,19 @@ export default function AppLayout() {
                 {!isMobile && <ListItemText primary="Sprint Board" />}
               </ListItemButton>
             </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={RouterLink} to="/analytics">
+                <ListItemIcon><BarChartIcon /></ListItemIcon>
+                {!isMobile && <ListItemText primary="Analytics" />}
+              </ListItemButton>
+            </ListItem>
+            {/* Visible to admin only */}
             {user?.isAdmin && (
               <>
                 <ListItem disablePadding>
-                  <ListItemButton component={RouterLink} to="/analytics">
-                    <ListItemIcon><BarChartIcon /></ListItemIcon>
-                    {!isMobile && <ListItemText primary="Analytics" />}
+                  <ListItemButton component={RouterLink} to="/top-users">
+                    <ListItemIcon><LeaderboardIcon /></ListItemIcon>
+                    {!isMobile && <ListItemText primary="Top Users" />}
                   </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>

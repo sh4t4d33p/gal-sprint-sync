@@ -26,14 +26,14 @@ Task ID,Task Description,Estimated Time (hrs),Actual Time (hrs)
 7.1,Initialize frontend project,0.5,0.5
 7.2,Task list view with inline status change,0.75,
 7.3,Create/edit task form/modal,0.5,
-7.4,User authentication flow,0.5,1.0
+7.4,User authentication flow,0.5,1.1
 7.5,Button to invoke /ai/suggest,0.25,
-7.6,Basic responsive styling,0.25,1.5
+7.6,Basic responsive styling,0.25,1.7
 7.7,Update README,0.25,
 ,Optional Stretch Goals,,
 8.1,Implement Kanban drag-and-drop board,1.5,
-8.2,Add analytics chart (time logged per user per day),1.0,0.5
-8.3,Implement /stats/top-users endpoint,0.5,0.4
+8.2,Add analytics chart (time logged per user per day),1.0,1.0
+8.3,Implement /stats/top-users endpoint,0.5,0.7
 8.4,Admin can assign tasks to others,0.5,0.3
 8.5,Write unit/integration tests,1.0,2.0
 ,Performance & Efficiency,,

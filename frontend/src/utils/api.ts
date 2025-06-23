@@ -151,4 +151,47 @@ export async function deleteUser(userId: number) {
   }
 }
 
+/**
+ * Get time logged per day for users (admin: all users, user: self)
+ * @param startDate - YYYY-MM-DD
+ * @param endDate - YYYY-MM-DD
+ * @returns Array of user stats with per-day data
+ */
+export async function getTimeLoggedPerDay(startDate: string, endDate: string) {
+  try {
+    const params = new URLSearchParams({ startDate, endDate });
+    const res = await fetch(`${API_BASE}/users/stats/time-logged-per-day?${params.toString()}`, {
+      method: 'GET',
+      headers: setMandatoryHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to fetch analytics.');
+    }
+    return data;
+  } catch (err: any) {
+    throw new Error(err.message || 'Network error.');
+  }
+}
+
+/**
+ * Get top users by total minutes logged (admin only)
+ * @returns Array of top users
+ */
+export async function getTopUsers() {
+  try {
+    const res = await fetch(`${API_BASE}/users/stats/top-users`, {
+      method: 'GET',
+      headers: setMandatoryHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to fetch top users.');
+    }
+    return data;
+  } catch (err: any) {
+    throw new Error(err.message || 'Network error.');
+  }
+}
+
 // Add more API methods as needed (with JWT header if required) 
