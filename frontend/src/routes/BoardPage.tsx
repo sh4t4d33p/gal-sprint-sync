@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, Button, Paper, Avatar, CircularProgress, Alert } from '@mui/material';
 import { useUser } from '../UserContext';
-import { getTasks, getAllUsers, createTask } from '../utils/api';
+import { getTasks, getAllUsers, createTask, deleteTask } from '../utils/api';
 import TaskCard from '../components/TaskCard/TaskCard';
 import CreateTaskModal from '../components/TaskCard/CreateTaskModal';
 
@@ -21,22 +21,18 @@ export default function BoardPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetch = async () => {
       setLoading(true);
       setError('');
       try {
-        const [tasksData, usersData] = user?.isAdmin
-          ? await Promise.all([getTasks(), getAllUsers()])
-          : [await getTasks(), null];
-        setTasks(tasksData);
-        if (usersData) setUsers(usersData);
+        await refreshTasks();
       } catch (err: any) {
         setError(err.message || 'Failed to fetch data.');
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
+    fetch();
   }, [user?.isAdmin]);
 
   // Helper to get user info by userId
@@ -64,7 +60,16 @@ export default function BoardPage() {
               <Typography fontWeight={600}>{u.name}</Typography>
             </Box>
             {userTasks.map(task => (
-              <TaskCard key={task.id} title={task.title} description={task.description} />
+              <TaskCard
+                key={task.id}
+                title={task.title}
+                description={task.description}
+                totalMinutes={task.totalMinutes}
+                onDelete={async () => {
+                  await deleteTask(task.id);
+                  await refreshTasks();
+                }}
+              />
             ))}
           </Box>
         );
@@ -72,8 +77,29 @@ export default function BoardPage() {
     } else {
       // Normal user: just list their tasks
       return filtered.map(task => (
-        <TaskCard key={task.id} title={task.title} description={task.description} />
+        <TaskCard
+          key={task.id}
+          title={task.title}
+          description={task.description}
+          totalMinutes={task.totalMinutes}
+          onDelete={async () => {
+            await deleteTask(task.id);
+            await refreshTasks();
+          }}
+        />
       ));
+    }
+  };
+
+  // Helper to refresh tasks (and users if admin)
+  const refreshTasks = async () => {
+    if (user?.isAdmin) {
+      const [tasksData, usersData] = await Promise.all([getTasks(), getAllUsers()]);
+      setTasks(tasksData);
+      setUsers(usersData);
+    } else {
+      const tasksData = await getTasks();
+      setTasks(tasksData);
     }
   };
 
@@ -81,15 +107,7 @@ export default function BoardPage() {
     setCreating(true);
     try {
       await createTask({ ...data, status: 'ToDo' });
-      // Refresh tasks after creation
-      if (user?.isAdmin) {
-        const [tasksData, usersData] = await Promise.all([getTasks(), getAllUsers()]);
-        setTasks(tasksData);
-        setUsers(usersData);
-      } else {
-        const tasksData = await getTasks();
-        setTasks(tasksData);
-      }
+      await refreshTasks();
       setCreateOpen(false);
     } catch (err: any) {
       throw err;
@@ -113,14 +131,14 @@ export default function BoardPage() {
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : (
-        <Box display="flex" gap={0} flexGrow={1} minHeight={0} height="calc(100vh - 64px)">
+        <Box display="flex" gap={0} flexGrow={1} minHeight={0}>
           {STATUSES.map(status => (
             <Box key={status.key} flex={1} minWidth={0} display="flex" flexDirection="column">
               <Paper sx={{ p: 0, flex: 1, bgcolor: 'grey.50', borderRadius: 0, minHeight: 0, display: 'flex', flexDirection: 'column', boxShadow: 'none', borderRight: status.key !== 'Done' ? '1px solid #eee' : 'none' }}>
                 <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
                   {status.label}
                 </Typography>
-                <Box px={2} flex={1} overflow="auto">
+                <Box px={2}>
                   {getSwimlaneContent(status.key)}
                 </Box>
               </Paper>

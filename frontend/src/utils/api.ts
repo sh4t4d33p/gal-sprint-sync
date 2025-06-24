@@ -257,3 +257,24 @@ export async function suggestDescriptionAI(title: string): Promise<string> {
     throw new Error(err.message || 'Network error.');
   }
 }
+
+/**
+ * Delete a task by ID
+ * @param taskId - The task's ID
+ * @returns Task deleted message
+ */
+export async function deleteTask(taskId: number) {
+  try {
+    const res = await fetch(`${API_BASE}/tasks/${taskId}`, {
+      method: 'DELETE',
+      headers: setMandatoryHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to delete task.');
+    }
+    return data;
+  } catch (err: any) {
+    throw new Error(err.message || 'Network error.');
+  }
+}
