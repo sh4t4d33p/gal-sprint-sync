@@ -5,6 +5,7 @@ import { getTasks, getAllUsers, createTask, deleteTask, updateTask, patchTaskPro
 import TaskCard from '../components/TaskCard/TaskCard';
 import CreateTaskModal from '../components/TaskCard/CreateTaskModal';
 import TaskModal from '../components/TaskCard/TaskModal';
+import Divider from '@mui/material/Divider';
 
 const STATUSES = [
   { key: 'ToDo', label: 'To Do' },
@@ -51,9 +52,16 @@ export default function BoardPage() {
         if (!byUser[t.userId]) byUser[t.userId] = [];
         byUser[t.userId].push(t);
       });
-      // Get unique users for this swimlane
+      // Get unique users for this swimlane, sorted alphabetically by name
       const usersInSwimlane = Array.from(new Set(filtered.map(t => t.userId)));
-      return usersInSwimlane.map(uid => {
+      const sortedUsers = usersInSwimlane
+        .map(uid => ({
+          uid,
+          name: getUserById(uid).name || '',
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      return sortedUsers.map((userObj, idx) => {
+        const uid = userObj.uid;
         const userTasks = byUser[uid];
         const u = getUserById(uid);
         return (
@@ -80,6 +88,7 @@ export default function BoardPage() {
                 taskId={task.id}
               />
             ))}
+            {idx < sortedUsers.length - 1 && <Divider sx={{ my: 2 }} />}
           </Box>
         );
       });
@@ -104,6 +113,73 @@ export default function BoardPage() {
         />
       ));
     }
+  };
+
+  // For admin: render board as user rows, each with 3 columns (statuses)
+  const getAdminBoardContent = () => {
+    // Get all users with tasks in any status, sorted alphabetically
+    const userIds = Array.from(new Set(tasks.map(t => t.userId)));
+    const sortedUsers = userIds
+      .map(uid => ({
+        uid,
+        name: getUserById(uid).name || '',
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return (
+      <Box>
+        <Box display="flex" gap={0} mb={2} mt={2}>
+          {STATUSES.map(status => (
+            <Box key={status.key} flex={1} minWidth={0} display="flex" flexDirection="column">
+              <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
+                {status.label}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+        {sortedUsers.map((userObj, idx) => {
+          const uid = userObj.uid;
+          const u = getUserById(uid);
+          return (
+            <Box key={uid} mb={0}>
+              <Box display="flex" alignItems="center" gap={1} mb={1}>
+                <Avatar sx={{ width: 28, height: 28 }}>{u.name ? u.name[0].toUpperCase() : '?'}</Avatar>
+                <Typography fontWeight={600}>{u.name}</Typography>
+              </Box>
+              <Box display="flex" gap={0}>
+                {STATUSES.map(status => {
+                  const userTasks = tasks.filter(t => t.userId === uid && t.status === status.key);
+                  return (
+                    <Box key={status.key} flex={1} minWidth={0} display="flex" flexDirection="column">
+                      <Paper sx={{ p: 0, flex: 1, bgcolor: 'grey.50', borderRadius: 0, minHeight: 0, display: 'flex', flexDirection: 'column', boxShadow: 'none', borderRight: status.key !== 'Done' ? '1px solid #eee' : 'none' }}>
+                        {userTasks.map(task => (
+                          <TaskCard
+                            key={task.id}
+                            title={task.title}
+                            description={task.description}
+                            totalMinutes={task.totalMinutes}
+                            onDelete={async () => {
+                              await deleteTask(task.id);
+                              await refreshTasks();
+                            }}
+                            onClick={() => handleCardClick(task)}
+                            onUpdateTotalMinutes={async (newMinutes) => {
+                              await patchTaskProgress(task.id, { totalMinutes: newMinutes });
+                              await refreshTasks();
+                            }}
+                            taskId={task.id}
+                          />
+                        ))}
+                      </Paper>
+                    </Box>
+                  );
+                })}
+              </Box>
+              {idx < sortedUsers.length - 1 && <Divider sx={{ my: 2 }} />}
+            </Box>
+          );
+        })}
+      </Box>
+    );
   };
 
   // Helper to refresh tasks (and users if admin)
@@ -169,20 +245,22 @@ export default function BoardPage() {
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : (
-        <Box display="flex" gap={0} flexGrow={1} minHeight={0}>
-          {STATUSES.map(status => (
-            <Box key={status.key} flex={1} minWidth={0} display="flex" flexDirection="column">
-              <Paper sx={{ p: 0, flex: 1, bgcolor: 'grey.50', borderRadius: 0, minHeight: 0, display: 'flex', flexDirection: 'column', boxShadow: 'none', borderRight: status.key !== 'Done' ? '1px solid #eee' : 'none' }}>
-                <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
-                  {status.label}
-                </Typography>
-                <Box px={2}>
-                  {getSwimlaneContent(status.key)}
-                </Box>
-              </Paper>
-            </Box>
-          ))}
-        </Box>
+        user?.isAdmin ? getAdminBoardContent() : (
+          <Box display="flex" gap={0} flexGrow={1} minHeight={0}>
+            {STATUSES.map(status => (
+              <Box key={status.key} flex={1} minWidth={0} display="flex" flexDirection="column">
+                <Paper sx={{ p: 0, flex: 1, bgcolor: 'grey.50', borderRadius: 0, minHeight: 0, display: 'flex', flexDirection: 'column', boxShadow: 'none', borderRight: status.key !== 'Done' ? '1px solid #eee' : 'none' }}>
+                  <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
+                    {status.label}
+                  </Typography>
+                  <Box px={2}>
+                    {getSwimlaneContent(status.key)}
+                  </Box>
+                </Paper>
+              </Box>
+            ))}
+          </Box>
+        )
       )}
       <CreateTaskModal
         open={createOpen}
