@@ -250,6 +250,11 @@ export async function patchTaskProgress(req: Request, res: Response): Promise<vo
       }
       statusValue = status as TaskStatus;
     }
+    // Calculate minutes added
+    let minutesAdded = 0;
+    if (typeof totalMinutes === 'number') {
+      minutesAdded = totalMinutes - (task.totalMinutes || 0);
+    }
     // Build update data
     const updateData: { status?: TaskStatus; totalMinutes?: number } = {};
     if (statusValue !== undefined) updateData.status = statusValue;
@@ -258,6 +263,17 @@ export async function patchTaskProgress(req: Request, res: Response): Promise<vo
       where: { id: taskId },
       data: updateData,
     });
+    // Log the time if minutes were added
+    if (minutesAdded > 0) {
+      await prisma.taskLog.create({
+        data: {
+          taskId,
+          userId: task.userId,
+          minutes: minutesAdded,
+          // createdAt defaults to now()
+        },
+      });
+    }
     res.status(200).json(updatedTask);
   } catch (err) {
     res.status(500).json({ message: 'Failed to update task progress', error: JSON.stringify(err) });

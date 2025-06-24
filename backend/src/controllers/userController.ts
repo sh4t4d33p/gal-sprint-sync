@@ -202,32 +202,45 @@ export async function statsTimeLoggedPerDay(req: Request, res: Response): Promis
     if (startDate) where.createdAt.gte = startDate;
     if (endDate) where.createdAt.lte = endDate;
 
-    // Group by userId and createdAt (date only)
-    const results = await prisma.task.groupBy({
-      by: ['userId', 'createdAt'],
-      _sum: { totalMinutes: true },
+    // Fetch all relevant TaskLog entries
+    const logs = await prisma.taskLog.findMany({
       where,
+      select: {
+        userId: true,
+        createdAt: true,
+        minutes: true,
+      },
       orderBy: [
         { userId: 'asc' },
         { createdAt: 'asc' }
       ]
     });
 
-    // Get user info for all involved users
-    const userIds = Array.from(new Set(results.map(r => r.userId)));
+    // Aggregate per user per day
+    const perUserPerDay: Record<number, Record<string, number>> = {};
+    logs.forEach(log => {
+      const date = log.createdAt.toISOString().slice(0, 10);
+      if (!perUserPerDay[log.userId]) perUserPerDay[log.userId] = {};
+      if (!perUserPerDay[log.userId][date]) perUserPerDay[log.userId][date] = 0;
+      perUserPerDay[log.userId][date] += log.minutes;
+    });
+
+    // Get user info
+    const userIds = Object.keys(perUserPerDay).map(Number);
     const users = await prisma.user.findMany({
       where: { id: { in: userIds } },
       select: { id: true, name: true, email: true },
     });
 
-    // Format data per user
+    // Format response
     const userData = users.map(user => ({
       userId: user.id,
       name: user.name,
       email: user.email,
-      data: results
-        .filter(r => r.userId === user.id)
-        .map(r => ({ date: r.createdAt.toISOString().slice(0, 10), totalMinutes: r._sum?.totalMinutes || 0 })) // Format date as YYYY-MM-DD
+      data: Object.entries(perUserPerDay[user.id]).map(([date, totalMinutes]) => ({
+        date,
+        totalMinutes,
+      })),
     }));
 
     res.status(200).json(userData);
