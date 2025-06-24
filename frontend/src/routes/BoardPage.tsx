@@ -6,6 +6,8 @@ import TaskCard from '../components/TaskCard/TaskCard';
 import CreateTaskModal from '../components/TaskCard/CreateTaskModal';
 import TaskModal from '../components/TaskCard/TaskModal';
 import Divider from '@mui/material/Divider';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import type { DropResult } from '@hello-pangea/dnd';
 
 const STATUSES = [
   { key: 'ToDo', label: 'To Do' },
@@ -42,77 +44,25 @@ export default function BoardPage() {
   // Helper to get user info by userId
   const getUserById = (id: number) => users.find((u: any) => u.id === id) || { name: 'Unknown', email: '', id };
 
-  // Group tasks by status, then by user (for admin)
-  const getSwimlaneContent = (statusKey: string) => {
-    const filtered = tasks.filter(t => t.status === statusKey);
-    if (user?.isAdmin) {
-      // Group by user
-      const byUser: Record<number, any[]> = {};
-      filtered.forEach(t => {
-        if (!byUser[t.userId]) byUser[t.userId] = [];
-        byUser[t.userId].push(t);
-      });
-      // Get unique users for this swimlane, sorted alphabetically by name
-      const usersInSwimlane = Array.from(new Set(filtered.map(t => t.userId)));
-      const sortedUsers = usersInSwimlane
-        .map(uid => ({
-          uid,
-          name: getUserById(uid).name || '',
-        }))
-        .sort((a, b) => a.name.localeCompare(b.name));
-      return sortedUsers.map((userObj, idx) => {
-        const uid = userObj.uid;
-        const userTasks = byUser[uid];
-        const u = getUserById(uid);
-        return (
-          <Box key={uid} mb={2}>
-            <Box display="flex" alignItems="center" gap={1} mb={1}>
-              <Avatar sx={{ width: 28, height: 28 }}>{u.name ? u.name[0].toUpperCase() : '?'}</Avatar>
-              <Typography fontWeight={600}>{u.name}</Typography>
-            </Box>
-            {userTasks.map(task => (
-              <TaskCard
-                key={task.id}
-                title={task.title}
-                description={task.description}
-                totalMinutes={task.totalMinutes}
-                onDelete={async () => {
-                  await deleteTask(task.id);
-                  await refreshTasks();
-                }}
-                onClick={() => handleCardClick(task)}
-                onUpdateTotalMinutes={async (newMinutes) => {
-                  await patchTaskProgress(task.id, { totalMinutes: newMinutes });
-                  await refreshTasks();
-                }}
-                taskId={task.id}
-              />
-            ))}
-            {idx < sortedUsers.length - 1 && <Divider sx={{ my: 2 }} />}
-          </Box>
-        );
-      });
-    } else {
-      // Normal user: just list their tasks
-      return filtered.map(task => (
-        <TaskCard
-          key={task.id}
-          title={task.title}
-          description={task.description}
-          totalMinutes={task.totalMinutes}
-          onDelete={async () => {
-            await deleteTask(task.id);
-            await refreshTasks();
-          }}
-          onClick={() => handleCardClick(task)}
-          onUpdateTotalMinutes={async (newMinutes) => {
-            await patchTaskProgress(task.id, { totalMinutes: newMinutes });
-            await refreshTasks();
-          }}
-          taskId={task.id}
-        />
-      ));
-    }
+  // Handle drag end for both admin and normal user
+  const handleDragEnd = async (result: DropResult) => {
+    const { source, destination, draggableId, type } = result;
+    if (!destination) return;
+    // Only handle status change (column change)
+    if (source.droppableId === destination.droppableId) return;
+    // Find the task
+    const taskId = Number(draggableId);
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    // For admin, only allow moving within the same user row
+    if (user?.isAdmin && source.droppableId.split('-')[0] !== destination.droppableId.split('-')[0]) return;
+    // For normal user, only allow moving own tasks
+    if (!user?.isAdmin && task.userId !== user?.userId) return;
+    // Update status
+    const newStatus = destination.droppableId.split('-')[1];
+    if (task.status === newStatus) return;
+    await patchTaskProgress(taskId, { status: newStatus });
+    await refreshTasks();
   };
 
   // For admin: render board as user rows, each with 3 columns (statuses)
@@ -136,48 +86,74 @@ export default function BoardPage() {
             </Box>
           ))}
         </Box>
-        {sortedUsers.map((userObj, idx) => {
-          const uid = userObj.uid;
-          const u = getUserById(uid);
-          return (
-            <Box key={uid} mb={0}>
-              <Box display="flex" alignItems="center" gap={1} mb={1}>
-                <Avatar sx={{ width: 28, height: 28 }}>{u.name ? u.name[0].toUpperCase() : '?'}</Avatar>
-                <Typography fontWeight={600}>{u.name}</Typography>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          {sortedUsers.map((userObj, idx) => {
+            const uid = userObj.uid;
+            const u = getUserById(uid);
+            return (
+              <Box key={uid} mb={0}>
+                <Box display="flex" alignItems="center" gap={1} mb={1}>
+                  <Avatar sx={{ width: 28, height: 28 }}>{u.name ? u.name[0].toUpperCase() : '?'}</Avatar>
+                  <Typography fontWeight={600}>{u.name}</Typography>
+                </Box>
+                <Box display="flex" gap={0}>
+                  {STATUSES.map(status => {
+                    const userTasks = tasks.filter(t => t.userId === uid && t.status === status.key);
+                    return (
+                      <Droppable key={status.key} droppableId={`${uid}-${status.key}`} direction="vertical">
+                        {(provided, snapshot) => (
+                          <Box
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            flex={1}
+                            minWidth={0}
+                            display="flex"
+                            flexDirection="column"
+                            sx={{ minHeight: 80, bgcolor: snapshot.isDraggingOver ? 'primary.light' : 'grey.50', borderRadius: 0, boxShadow: 'none', borderRight: status.key !== 'Done' ? '1px solid #eee' : 'none', p: 0 }}
+                          >
+                            {userTasks.map((task, idx2) => (
+                              <Draggable key={task.id} draggableId={String(task.id)} index={idx2}>
+                                {(provided, snapshot) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    style={{
+                                      ...provided.draggableProps.style,
+                                      opacity: snapshot.isDragging ? 0.7 : 1,
+                                    }}
+                                  >
+                                    <TaskCard
+                                      title={task.title}
+                                      description={task.description}
+                                      totalMinutes={task.totalMinutes}
+                                      onDelete={async () => {
+                                        await deleteTask(task.id);
+                                        await refreshTasks();
+                                      }}
+                                      onClick={() => handleCardClick(task)}
+                                      onUpdateTotalMinutes={async (newMinutes) => {
+                                        await patchTaskProgress(task.id, { totalMinutes: newMinutes });
+                                        await refreshTasks();
+                                      }}
+                                      taskId={task.id}
+                                    />
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
+                          </Box>
+                        )}
+                      </Droppable>
+                    );
+                  })}
+                </Box>
+                {idx < sortedUsers.length - 1 && <Divider sx={{ my: 2 }} />}
               </Box>
-              <Box display="flex" gap={0}>
-                {STATUSES.map(status => {
-                  const userTasks = tasks.filter(t => t.userId === uid && t.status === status.key);
-                  return (
-                    <Box key={status.key} flex={1} minWidth={0} display="flex" flexDirection="column">
-                      <Paper sx={{ p: 0, flex: 1, bgcolor: 'grey.50', borderRadius: 0, minHeight: 0, display: 'flex', flexDirection: 'column', boxShadow: 'none', borderRight: status.key !== 'Done' ? '1px solid #eee' : 'none' }}>
-                        {userTasks.map(task => (
-                          <TaskCard
-                            key={task.id}
-                            title={task.title}
-                            description={task.description}
-                            totalMinutes={task.totalMinutes}
-                            onDelete={async () => {
-                              await deleteTask(task.id);
-                              await refreshTasks();
-                            }}
-                            onClick={() => handleCardClick(task)}
-                            onUpdateTotalMinutes={async (newMinutes) => {
-                              await patchTaskProgress(task.id, { totalMinutes: newMinutes });
-                              await refreshTasks();
-                            }}
-                            taskId={task.id}
-                          />
-                        ))}
-                      </Paper>
-                    </Box>
-                  );
-                })}
-              </Box>
-              {idx < sortedUsers.length - 1 && <Divider sx={{ my: 2 }} />}
-            </Box>
-          );
-        })}
+            );
+          })}
+        </DragDropContext>
       </Box>
     );
   };
@@ -246,20 +222,63 @@ export default function BoardPage() {
         <Alert severity="error">{error}</Alert>
       ) : (
         user?.isAdmin ? getAdminBoardContent() : (
-          <Box display="flex" gap={0} flexGrow={1} minHeight={0}>
-            {STATUSES.map(status => (
-              <Box key={status.key} flex={1} minWidth={0} display="flex" flexDirection="column">
-                <Paper sx={{ p: 0, flex: 1, bgcolor: 'grey.50', borderRadius: 0, minHeight: 0, display: 'flex', flexDirection: 'column', boxShadow: 'none', borderRight: status.key !== 'Done' ? '1px solid #eee' : 'none' }}>
-                  <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
-                    {status.label}
-                  </Typography>
-                  <Box px={2}>
-                    {getSwimlaneContent(status.key)}
-                  </Box>
-                </Paper>
-              </Box>
-            ))}
-          </Box>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Box display="flex" gap={0} flexGrow={1} minHeight={0}>
+              {STATUSES.map(status => (
+                <Droppable key={status.key} droppableId={`user-${status.key}`} direction="vertical">
+                  {(provided, snapshot) => (
+                    <Box
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      flex={1}
+                      minWidth={0}
+                      display="flex"
+                      flexDirection="column"
+                      sx={{ bgcolor: snapshot.isDraggingOver ? 'primary.light' : 'grey.50', borderRadius: 0, minHeight: 0, boxShadow: 'none', borderRight: status.key !== 'Done' ? '1px solid #eee' : 'none' }}
+                    >
+                      <Typography variant="h6" fontWeight={600} mb={2} textAlign="center">
+                        {status.label}
+                      </Typography>
+                      <Box px={2}>
+                        {tasks.filter(t => t.status === status.key).map((task, idx2) => (
+                          <Draggable key={task.id} draggableId={String(task.id)} index={idx2}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                style={{
+                                  ...provided.draggableProps.style,
+                                  opacity: snapshot.isDragging ? 0.7 : 1,
+                                }}
+                              >
+                                <TaskCard
+                                  title={task.title}
+                                  description={task.description}
+                                  totalMinutes={task.totalMinutes}
+                                  onDelete={async () => {
+                                    await deleteTask(task.id);
+                                    await refreshTasks();
+                                  }}
+                                  onClick={() => handleCardClick(task)}
+                                  onUpdateTotalMinutes={async (newMinutes) => {
+                                    await patchTaskProgress(task.id, { totalMinutes: newMinutes });
+                                    await refreshTasks();
+                                  }}
+                                  taskId={task.id}
+                                />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </Box>
+                    </Box>
+                  )}
+                </Droppable>
+              ))}
+            </Box>
+          </DragDropContext>
         )
       )}
       <CreateTaskModal
