@@ -131,10 +131,14 @@ export default function CreateTaskModal({ open, onClose, onCreate, users, curren
               </Select>
             </FormControl>
           ) : (
-            <Box mt={2} mb={1}>
-              <Typography variant="body2" color="text.secondary">Assigned to</Typography>
-              <Typography fontWeight={600}>{currentUser.name}</Typography>
-            </Box>
+            <TextField
+              label="Assigned to"
+              value={currentUser.name}
+              fullWidth
+              margin="normal"
+              disabled
+              InputProps={{ readOnly: true }}
+            />
           )}
           {error && <Typography color="error" mt={1}>{error}</Typography>}
         </DialogContent>

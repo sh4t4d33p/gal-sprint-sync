@@ -103,7 +103,9 @@ export async function getCurrentUser(req: Request, res: Response): Promise<void>
       res.status(401).json({ message: 'Unauthorized' });
       return;
     }
-    res.status(200).json({ user });
+    // Fetch the user's name from the database
+    const dbUser = await prisma.user.findUnique({ where: { id: user.userId }, select: { name: true } });
+    res.status(200).json({ user: { ...user, name: dbUser?.name || '' } });
   } catch (err) {
     res.status(500).json({ message: 'Failed to get current user', error: JSON.stringify(err) });
   }
