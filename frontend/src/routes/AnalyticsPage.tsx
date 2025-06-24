@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Typography, CircularProgress, Alert, Paper, TextField, Stack } from '@mui/material';
+import { Box, Typography, CircularProgress, Alert, Paper, Stack } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { getTimeLoggedPerDay } from '../utils/api';

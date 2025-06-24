@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, Button, Paper, Avatar, CircularProgress, Alert } from '@mui/material';
 import { useUser } from '../UserContext';
-import { getTasks, getAllUsers, createTask, deleteTask } from '../utils/api';
+import { getTasks, getAllUsers, createTask, deleteTask, updateTask, patchTaskProgress } from '../utils/api';
 import TaskCard from '../components/TaskCard/TaskCard';
 import CreateTaskModal from '../components/TaskCard/CreateTaskModal';
+import TaskModal from '../components/TaskCard/TaskModal';
 
 const STATUSES = [
   { key: 'ToDo', label: 'To Do' },
@@ -19,6 +20,8 @@ export default function BoardPage() {
   const [users, setUsers] = useState<any[]>([]); // For admin
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedTask, setSelectedTask] = useState<any | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -69,6 +72,12 @@ export default function BoardPage() {
                   await deleteTask(task.id);
                   await refreshTasks();
                 }}
+                onClick={() => handleCardClick(task)}
+                onUpdateTotalMinutes={async (newMinutes) => {
+                  await patchTaskProgress(task.id, { totalMinutes: newMinutes });
+                  await refreshTasks();
+                }}
+                taskId={task.id}
               />
             ))}
           </Box>
@@ -86,6 +95,12 @@ export default function BoardPage() {
             await deleteTask(task.id);
             await refreshTasks();
           }}
+          onClick={() => handleCardClick(task)}
+          onUpdateTotalMinutes={async (newMinutes) => {
+            await patchTaskProgress(task.id, { totalMinutes: newMinutes });
+            await refreshTasks();
+          }}
+          taskId={task.id}
         />
       ));
     }
@@ -114,6 +129,29 @@ export default function BoardPage() {
     } finally {
       setCreating(false);
     }
+  };
+
+  const handleCardClick = (task: any) => {
+    setSelectedTask(task);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedTask(null);
+  };
+
+  const handleTaskSave = async (data: { title: string; description: string; totalMinutes: number; status: string; userId?: number }) => {
+    if (!selectedTask) return;
+    await updateTask(selectedTask.id, data.title, data.description, data.status, data.totalMinutes, data.userId);
+    await refreshTasks();
+  };
+
+  const handleTaskDelete = async () => {
+    if (!selectedTask) return;
+    await deleteTask(selectedTask.id);
+    await refreshTasks();
+    handleModalClose();
   };
 
   return (
@@ -153,6 +191,18 @@ export default function BoardPage() {
         users={user?.isAdmin ? users : undefined}
         currentUser={user as any}
       />
+      {selectedTask && (
+        <TaskModal
+          open={modalOpen}
+          onClose={handleModalClose}
+          task={selectedTask}
+          onSave={handleTaskSave}
+          onDelete={handleTaskDelete}
+          statuses={STATUSES}
+          users={users}
+          isAdmin={user?.isAdmin}
+        />
+      )}
     </Box>
   );
 } 

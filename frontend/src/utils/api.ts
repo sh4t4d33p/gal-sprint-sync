@@ -278,3 +278,55 @@ export async function deleteTask(taskId: number) {
     throw new Error(err.message || 'Network error.');
   }
 }
+
+/**
+ * Update a task by ID
+ * @param taskId - The task's ID
+ * @param title - The new title
+ * @param description - The new description
+ * @param status - The new status
+ * @param totalMinutes - The new total minutes
+ * @param userId - (optional) The user ID to assign
+ * @returns The updated task
+ */
+export async function updateTask(taskId: number, title: string, description: string, status: string, totalMinutes: number, userId?: number) {
+  try {
+    const body: any = { title, description, status, totalMinutes };
+    if (userId) body.userId = userId;
+    const res = await fetch(`${API_BASE}/tasks/${taskId}`, {
+      method: 'PUT',
+      headers: setMandatoryHeaders(),
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to update task.');
+    }
+    return data;
+  } catch (err: any) {
+    throw new Error(err.message || 'Network error.');
+  }
+}
+
+/**
+ * Patch task progress (status and/or totalMinutes)
+ * @param taskId - The task's ID
+ * @param data - Object with status and/or totalMinutes
+ * @returns The updated task
+ */
+export async function patchTaskProgress(taskId: number, data: { status?: string; totalMinutes?: number }) {
+  try {
+    const res = await fetch(`${API_BASE}/tasks/${taskId}/progress`, {
+      method: 'PATCH',
+      headers: setMandatoryHeaders(),
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
+    if (!res.ok) {
+      throw new Error(result.message || 'Failed to update task progress.');
+    }
+    return result;
+  } catch (err: any) {
+    throw new Error(err.message || 'Network error.');
+  }
+}

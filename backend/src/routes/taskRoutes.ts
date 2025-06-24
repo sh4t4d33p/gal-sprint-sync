@@ -175,9 +175,9 @@ router.delete('/:id', deleteTask);
 
 /**
  * @openapi
- * /api/tasks/{id}/status:
+ * /api/tasks/{id}/progress:
  *   patch:
- *     summary: Update task status
+ *     summary: Update task progress
  *     tags:
  *       - Tasks
  *     security:
@@ -198,6 +198,8 @@ router.delete('/:id', deleteTask);
  *               status:
  *                 type: string
  *                 enum: [ToDo, InProgress, Done]
+ *               totalMinutes:
+ *                 type: integer
  *     responses:
  *       200:
  *         description: Updated task status
@@ -212,6 +214,6 @@ router.delete('/:id', deleteTask);
  *       429:
  *         description: Too many requests, rate limit exceeded
  */
-router.patch('/:id/status', patchTaskProgress);
+router.patch('/:id/progress', patchTaskProgress);
 
 export default router; 
