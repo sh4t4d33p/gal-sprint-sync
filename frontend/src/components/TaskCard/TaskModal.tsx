@@ -131,16 +131,7 @@ export default function TaskModal({ open, onClose, task, onSave, onDelete, statu
                 ))}
               </Select>
             </FormControl>
-          ) : (
-            <TextField
-              label="Assigned To"
-              value={task.user?.name || ''}
-              fullWidth
-              margin="normal"
-              disabled
-              InputProps={{ readOnly: true }}
-            />
-          )}
+          ) : null}
           {error && <Typography color="error" mt={1}>{error}</Typography>}
         </DialogContent>
         <DialogActions>
