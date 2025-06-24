@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, CircularProgress, Alert, Tooltip } from '@mui/material';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, CircularProgress, Alert, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getAllUsers, deleteUser } from '../utils/api';
 import { useUser } from '../UserContext';
@@ -11,6 +11,8 @@ export default function UsersPage() {
   const [error, setError] = useState('');
   const [deleting, setDeleting] = useState<number | null>(null);
   const [success, setSuccess] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -31,19 +33,26 @@ export default function UsersPage() {
     // eslint-disable-next-line
   }, []);
 
-  const handleDelete = async (userId: number) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
-    setDeleting(userId);
+  const handleDeleteClick = (userId: number) => {
+    setPendingDeleteId(userId);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (pendingDeleteId == null) return;
+    setDeleting(pendingDeleteId);
     setError('');
     setSuccess('');
+    setConfirmOpen(false);
     try {
-      await deleteUser(userId);
+      await deleteUser(pendingDeleteId);
       setSuccess('User deleted successfully.');
-      setUsers(users.filter(u => u.id !== userId));
+      setUsers(users.filter(u => u.id !== pendingDeleteId));
     } catch (err: any) {
       setError(err.message || 'Failed to delete user.');
     } finally {
       setDeleting(null);
+      setPendingDeleteId(null);
     }
   };
 
@@ -78,7 +87,10 @@ export default function UsersPage() {
                       <span>
                         <IconButton
                           color="error"
-                          onClick={() => handleDelete(u.id)}
+                          onClick={e => {
+                            handleDeleteClick(u.id);
+                            e.currentTarget.blur();
+                          }}
                           disabled={deleting === u.id}
                         >
                           {deleting === u.id ? <CircularProgress size={24} /> : <DeleteIcon />}
@@ -93,6 +105,16 @@ export default function UsersPage() {
         </TableContainer>
       )}
       {success && <Alert severity="success" sx={{ mt: 2 }}>{success}</Alert>}
+      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+        <DialogTitle>Delete User</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this user?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">Delete</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 } 
