@@ -194,4 +194,66 @@ export async function getTopUsers() {
   }
 }
 
-// Add more API methods as needed (with JWT header if required) 
+/**
+ * Get all tasks (admin: all, user: own)
+ * @returns Array of tasks
+ */
+export async function getTasks() {
+  try {
+    const res = await fetch(`${API_BASE}/tasks`, {
+      method: 'GET',
+      headers: setMandatoryHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to fetch tasks.');
+    }
+    return data;
+  } catch (err: any) {
+    throw new Error(err.message || 'Network error.');
+  }
+}
+
+/**
+ * Create a new task (admin can assign to any user)
+ * @param task - { title, description, status, userId? }
+ * @returns The created task
+ */
+export async function createTask(task: { title: string; description: string; status: string; userId?: number }) {
+  try {
+    const res = await fetch(`${API_BASE}/tasks`, {
+      method: 'POST',
+      headers: setMandatoryHeaders(),
+      body: JSON.stringify(task),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to create task.');
+    }
+    return data;
+  } catch (err: any) {
+    throw new Error(err.message || 'Network error.');
+  }
+}
+
+/**
+ * Get AI suggested description for a task title
+ * @param title - The task title
+ * @returns The suggested description string
+ */
+export async function suggestDescriptionAI(title: string): Promise<string> {
+  try {
+    let url = `${API_BASE}/ai/suggest?title=${title}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: setMandatoryHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to get AI suggestion.');
+    }
+    return data.description || '';
+  } catch (err: any) {
+    throw new Error(err.message || 'Network error.');
+  }
+}

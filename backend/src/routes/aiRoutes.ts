@@ -19,15 +19,12 @@ router.get('/suggest', getTaskDescriptionSuggestion);
  *       - AI
  *     security:
  *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
+ *     parameters:
+ *       - in: query
+ *         name: title
+ *         schema:
+ *           type: string
+ *         description: Task title
  *     responses:
  *       200:
  *         description: Generated task description
