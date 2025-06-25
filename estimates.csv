@@ -29,7 +29,7 @@ Task ID,Task Description,Estimated Time (hrs),Actual Time (hrs)
 7.4,User authentication flow,0.5,1.1
 7.5,Button to invoke /ai/suggest,0.25,0.25
 7.6,Basic responsive styling,0.25,3.0
-7.7,Update README,0.25,
+7.7,Update README,0.25,0.25
 ,Optional Stretch Goals,,
 8.1,Implement Kanban drag-and-drop board,1.5,1.5
 8.2,Add analytics chart (time logged per user per day),1.0,1.5
@@ -43,6 +43,6 @@ Task ID,Task Description,Estimated Time (hrs),Actual Time (hrs)
 10.2,Enable horizontal scaling for backend (stateless),0.75,0.75
 10.3,Implement rate limiting and API throttling,0.5,0.3
 ,Docker & Deployment,,
-11.1,Write Dockerfile,0.5,
-11.2,Write docker-compose,0.5,
-11.3,Deploy to cloud,0.5, 
+11.1,Write Dockerfile,0.5,0.75
+11.2,Write docker-compose,0.5,0.75
+11.3,Deploy to cloud,0.5,
