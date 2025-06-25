@@ -1,22 +1,10 @@
 import { useEffect, useState, Suspense, lazy } from 'react';
 import { Box, Typography, CircularProgress, Alert, Paper, Stack } from '@mui/material';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { getTimeLoggedPerDay } from '../utils/api';
-import { useUser } from '../UserContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LineChart, Line, CartesianGrid } from 'recharts';
 import { format, subDays } from 'date-fns';
 
-const LazyBarChart = lazy(() => import('recharts').then(mod => ({ default: mod.BarChart })));
-const LazyLineChart = lazy(() => import('recharts').then(mod => ({ default: mod.LineChart })));
-const LazyResponsiveContainer = lazy(() => import('recharts').then(mod => ({ default: mod.ResponsiveContainer })));
-const LazyCartesianGrid = lazy(() => import('recharts').then(mod => ({ default: mod.CartesianGrid })));
-const LazyXAxis = lazy(() => import('recharts').then(mod => ({ default: mod.XAxis })));
-const LazyYAxis = lazy(() => import('recharts').then(mod => ({ default: mod.YAxis })));
-const LazyTooltip = lazy(() => import('recharts').then(mod => ({ default: mod.Tooltip })));
-const LazyLegend = lazy(() => import('recharts').then(mod => ({ default: mod.Legend })));
-const LazyBar = lazy(() => import('recharts').then(mod => ({ default: mod.Bar })));
-const LazyLine = lazy(() => import('recharts').then(mod => ({ default: mod.Line })));
 const LazyDatePicker = lazy(() => import('@mui/x-date-pickers/DatePicker').then(m => ({ default: m.DatePicker })));
 const LazyLocalizationProvider = lazy(() => import('@mui/x-date-pickers/LocalizationProvider').then(m => ({ default: m.LocalizationProvider })));
 
@@ -27,7 +15,6 @@ function getDefaultDates() {
 }
 
 export default function AnalyticsPage() {
-  const { user } = useUser();
   const [startDate, setStartDate] = useState(getDefaultDates().start);
   const [endDate, setEndDate] = useState(getDefaultDates().end);
   const [data, setData] = useState<any[]>([]);

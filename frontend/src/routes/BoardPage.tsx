@@ -1,5 +1,5 @@
 import { useState, useEffect, Suspense, lazy } from 'react';
-import { Box, Typography, Button, Paper, Avatar, CircularProgress, Alert } from '@mui/material';
+import { Box, Typography, Button, Avatar, CircularProgress, Alert } from '@mui/material';
 import { useUser } from '../UserContext';
 import { getTasks, getAllUsers, createTask, deleteTask, updateTask, patchTaskProgress } from '../utils/api';
 import TaskCard from '../components/TaskCard/TaskCard';
@@ -19,7 +19,7 @@ const TaskModal = lazy(() => import('../components/TaskCard/TaskModal'));
 export default function BoardPage() {
   const { user } = useUser();
   const [createOpen, setCreateOpen] = useState(false);
-  const [creating, setCreating] = useState(false);
+  const [_creating, setCreating] = useState(false);
   const [tasks, setTasks] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]); // For admin
   const [loading, setLoading] = useState(true);
@@ -47,7 +47,7 @@ export default function BoardPage() {
 
   // Handle drag end for both admin and normal user
   const handleDragEnd = async (result: DropResult) => {
-    const { source, destination, draggableId, type } = result;
+    const { source, destination, draggableId } = result;
     if (!destination) return;
     // Only handle status change (column change)
     if (source.droppableId === destination.droppableId) return;
@@ -137,7 +137,6 @@ export default function BoardPage() {
                                         await patchTaskProgress(task.id, { totalMinutes: newMinutes });
                                         await refreshTasks();
                                       }}
-                                      taskId={task.id}
                                     />
                                   </div>
                                 )}
@@ -266,7 +265,6 @@ export default function BoardPage() {
                                     await patchTaskProgress(task.id, { totalMinutes: newMinutes });
                                     await refreshTasks();
                                   }}
-                                  taskId={task.id}
                                 />
                               </div>
                             )}

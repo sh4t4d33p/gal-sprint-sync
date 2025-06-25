@@ -2,7 +2,6 @@ import { useEffect, useState, Suspense, lazy } from 'react';
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, CircularProgress, Alert, Tooltip, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getAllUsers, deleteUser } from '../utils/api';
-import { useUser } from '../UserContext';
 
 const LazyDialog = lazy(() => import('@mui/material/Dialog'));
 const LazyDialogTitle = lazy(() => import('@mui/material/DialogTitle'));
@@ -10,7 +9,6 @@ const LazyDialogContent = lazy(() => import('@mui/material/DialogContent'));
 const LazyDialogActions = lazy(() => import('@mui/material/DialogActions'));
 
 export default function UsersPage() {
-  const { user } = useUser();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

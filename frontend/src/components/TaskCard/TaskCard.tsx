@@ -18,11 +18,10 @@ interface TaskCardProps {
   onClick?: () => void;
   onDelete?: () => void;
   onUpdateTotalMinutes?: (newMinutes: number) => void;
-  taskId?: number;
   children?: React.ReactNode;
 }
 
-export default function TaskCard({ title, description, totalMinutes, user, onClick, onDelete, onUpdateTotalMinutes, taskId, children }: TaskCardProps) {
+export default function TaskCard({ title, description, totalMinutes, user, onClick, onDelete, onUpdateTotalMinutes, children }: TaskCardProps) {
   const [editing, setEditing] = useState(false);
   const [minutesValue, setMinutesValue] = useState(totalMinutes ?? 0);
   const [originalValue, setOriginalValue] = useState(totalMinutes ?? 0);
