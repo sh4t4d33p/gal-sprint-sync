@@ -76,6 +76,7 @@ graph TD
   T[TaskCard]
   M[TaskModal]
   C[CreateTaskModal]
+  AISuggest[AISuggestButton]
   A --> L
   L --> S
   L --> H
@@ -87,7 +88,8 @@ graph TD
   B --> T
   B --> M
   B --> C
-  T --> AISuggest[AISuggestButton]
+  M --> AISuggest
+  C --> AISuggest
 ```
 
 ---
@@ -97,17 +99,17 @@ graph TD
 - **App.tsx**: Sets up routing and context providers.
 - **AppLayout**: Main layout with sidebar, header, and content area.
 - **Routes**:
-  - `/` → BoardPage (task board)
+  - `/board` → BoardPage (task board)
   - `/analytics` → AnalyticsPage
   - `/profile` → ProfilePage
   - `/users` → UsersPage (admin only)
   - `/top-users` → TopUsersPage (admin only)
   - `/login` → AuthPage (login/register)
 - **BoardPage**: Shows Kanban board, uses TaskCard, TaskModal, CreateTaskModal.
-- **TaskCard**: Displays task info, allows edit/delete, drag-and-drop, AI suggest.
-- **TaskModal**: Edit task details, status, assignment (admin).
-- **CreateTaskModal**: Create new task.
-- **AISuggestButton**: Calls backend AI endpoint for suggestions.
+- **TaskCard**: Displays task info, allows edit/delete, drag-and-drop.
+- **TaskModal**: Edit task details, status, assignment (admin), and includes AISuggestButton for AI description suggestions.
+- **CreateTaskModal**: Create new task, includes AISuggestButton for AI description suggestions.
+- **AISuggestButton**: Used in CreateTaskModal and TaskModal to call backend AI endpoint for suggestions.
 - **UserContext**: Manages auth state and user info.
 - **ProtectedRoute**: Restricts access to authenticated users/admins.
 
