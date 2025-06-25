@@ -16,8 +16,8 @@ FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80 for nginx
-EXPOSE 80
+# Expose port 8080 for nginx
+EXPOSE 8080
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"] 
