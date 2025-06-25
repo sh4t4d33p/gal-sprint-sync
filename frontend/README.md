@@ -61,6 +61,20 @@ docker-compose up --build
 ```
 - The frontend will be available at `http://localhost:3001`.
 
+### **Local Docker Usage (if Dockerfile is renamed)**
+
+If you want to build and run the frontend locally with Docker and the Dockerfile has been renamed (e.g., to `Dockerfile.local` to avoid conflicts with Railway deploys):
+
+> **Note:** The `docker-compose.yml` is already configured to use `Dockerfile.local` for the frontend service. No manual renaming is required for local development.
+
+1. Build and run as usual:
+   ```sh
+   docker-compose up --build
+   ```
+   - The frontend will be available at `http://localhost:3001`.
+
+> **Note:** The Dockerfile is renamed by default to prevent Railway from using it for production deploys. For Railway, the default static site build is used.
+
 ---
 
 ## Architecture Diagram
