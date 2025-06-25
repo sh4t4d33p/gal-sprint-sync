@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { Box, Typography, Button, Paper, Avatar, CircularProgress, Alert } from '@mui/material';
 import { useUser } from '../UserContext';
 import { getTasks, getAllUsers, createTask, deleteTask, updateTask, patchTaskProgress } from '../utils/api';
 import TaskCard from '../components/TaskCard/TaskCard';
-import CreateTaskModal from '../components/TaskCard/CreateTaskModal';
-import TaskModal from '../components/TaskCard/TaskModal';
 import Divider from '@mui/material/Divider';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import type { DropResult } from '@hello-pangea/dnd';
@@ -14,6 +12,9 @@ const STATUSES = [
   { key: 'InProgress', label: 'In Progress' },
   { key: 'Done', label: 'Done' },
 ];
+
+const CreateTaskModal = lazy(() => import('../components/TaskCard/CreateTaskModal'));
+const TaskModal = lazy(() => import('../components/TaskCard/TaskModal'));
 
 export default function BoardPage() {
   const { user } = useUser();
@@ -281,24 +282,28 @@ export default function BoardPage() {
           </DragDropContext>
         )
       )}
-      <CreateTaskModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onCreate={handleCreateTask}
-        users={user?.isAdmin ? users : undefined}
-        currentUser={user as any}
-      />
-      {selectedTask && (
-        <TaskModal
-          open={modalOpen}
-          onClose={handleModalClose}
-          task={selectedTask}
-          onSave={handleTaskSave}
-          onDelete={handleTaskDelete}
-          statuses={STATUSES}
-          users={users}
-          isAdmin={user?.isAdmin}
+      <Suspense fallback={null}>
+        <CreateTaskModal
+          open={createOpen}
+          onClose={() => setCreateOpen(false)}
+          onCreate={handleCreateTask}
+          users={user?.isAdmin ? users : undefined}
+          currentUser={user as any}
         />
+      </Suspense>
+      {selectedTask && (
+        <Suspense fallback={null}>
+          <TaskModal
+            open={modalOpen}
+            onClose={handleModalClose}
+            task={selectedTask}
+            onSave={handleTaskSave}
+            onDelete={handleTaskDelete}
+            statuses={STATUSES}
+            users={users}
+            isAdmin={user?.isAdmin}
+          />
+        </Suspense>
       )}
     </Box>
   );

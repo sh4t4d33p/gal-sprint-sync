@@ -1,8 +1,13 @@
-import { useEffect, useState } from 'react';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, CircularProgress, Alert, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { useEffect, useState, Suspense, lazy } from 'react';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, CircularProgress, Alert, Tooltip, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getAllUsers, deleteUser } from '../utils/api';
 import { useUser } from '../UserContext';
+
+const LazyDialog = lazy(() => import('@mui/material/Dialog'));
+const LazyDialogTitle = lazy(() => import('@mui/material/DialogTitle'));
+const LazyDialogContent = lazy(() => import('@mui/material/DialogContent'));
+const LazyDialogActions = lazy(() => import('@mui/material/DialogActions'));
 
 export default function UsersPage() {
   const { user } = useUser();
@@ -105,16 +110,18 @@ export default function UsersPage() {
         </TableContainer>
       )}
       {success && <Alert severity="success" sx={{ mt: 2 }}>{success}</Alert>}
-      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-        <DialogTitle>Delete User</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete this user?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
-          <Button onClick={handleConfirmDelete} color="error" variant="contained">Delete</Button>
-        </DialogActions>
-      </Dialog>
+      <Suspense fallback={<div>Loading...</div>}>
+        <LazyDialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+          <LazyDialogTitle>Delete User</LazyDialogTitle>
+          <LazyDialogContent>
+            <Typography>Are you sure you want to delete this user?</Typography>
+          </LazyDialogContent>
+          <LazyDialogActions>
+            <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
+            <Button onClick={handleConfirmDelete} color="error" variant="contained">Delete</Button>
+          </LazyDialogActions>
+        </LazyDialog>
+      </Suspense>
     </Box>
   );
 } 

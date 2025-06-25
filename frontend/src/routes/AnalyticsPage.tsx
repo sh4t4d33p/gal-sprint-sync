@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense, lazy } from 'react';
 import { Box, Typography, CircularProgress, Alert, Paper, Stack } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -6,6 +6,19 @@ import { getTimeLoggedPerDay } from '../utils/api';
 import { useUser } from '../UserContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LineChart, Line, CartesianGrid } from 'recharts';
 import { format, subDays } from 'date-fns';
+
+const LazyBarChart = lazy(() => import('recharts').then(mod => ({ default: mod.BarChart })));
+const LazyLineChart = lazy(() => import('recharts').then(mod => ({ default: mod.LineChart })));
+const LazyResponsiveContainer = lazy(() => import('recharts').then(mod => ({ default: mod.ResponsiveContainer })));
+const LazyCartesianGrid = lazy(() => import('recharts').then(mod => ({ default: mod.CartesianGrid })));
+const LazyXAxis = lazy(() => import('recharts').then(mod => ({ default: mod.XAxis })));
+const LazyYAxis = lazy(() => import('recharts').then(mod => ({ default: mod.YAxis })));
+const LazyTooltip = lazy(() => import('recharts').then(mod => ({ default: mod.Tooltip })));
+const LazyLegend = lazy(() => import('recharts').then(mod => ({ default: mod.Legend })));
+const LazyBar = lazy(() => import('recharts').then(mod => ({ default: mod.Bar })));
+const LazyLine = lazy(() => import('recharts').then(mod => ({ default: mod.Line })));
+const LazyDatePicker = lazy(() => import('@mui/x-date-pickers/DatePicker').then(m => ({ default: m.DatePicker })));
+const LazyLocalizationProvider = lazy(() => import('@mui/x-date-pickers/LocalizationProvider').then(m => ({ default: m.LocalizationProvider })));
 
 function getDefaultDates() {
   const end = new Date();
@@ -65,47 +78,49 @@ export default function AnalyticsPage() {
         Analytics
       </Typography>
       <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" alignItems="center">
-            <DatePicker
-              label="Start Date"
-              value={startDate}
-              onChange={date => date && setStartDate(date)}
-              maxDate={endDate}
-              slotProps={{
-                textField: { size: 'small' },
-                openPickerButton: {
-                  sx: {
-                    '&:focus:not(:focus-visible)': {
-                      outline: 'none',
-                      boxShadow: 'none',
-                      border: 'none',
+        <Suspense fallback={<div>Loading...</div>}>
+          <LazyLocalizationProvider dateAdapter={AdapterDateFns}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" alignItems="center">
+              <LazyDatePicker
+                label="Start Date"
+                value={startDate}
+                onChange={date => date && setStartDate(date)}
+                maxDate={endDate}
+                slotProps={{
+                  textField: { size: 'small' },
+                  openPickerButton: {
+                    sx: {
+                      '&:focus:not(:focus-visible)': {
+                        outline: 'none',
+                        boxShadow: 'none',
+                        border: 'none',
+                      },
                     },
                   },
-                },
-              }}
-            />
-            <DatePicker
-              label="End Date"
-              value={endDate}
-              onChange={date => date && setEndDate(date)}
-              minDate={startDate}
-              maxDate={new Date()}
-              slotProps={{
-                textField: { size: 'small' },
-                openPickerButton: {
-                  sx: {
-                    '&:focus:not(:focus-visible)': {
-                      outline: 'none',
-                      boxShadow: 'none',
-                      border: 'none',
+                }}
+              />
+              <LazyDatePicker
+                label="End Date"
+                value={endDate}
+                onChange={date => date && setEndDate(date)}
+                minDate={startDate}
+                maxDate={new Date()}
+                slotProps={{
+                  textField: { size: 'small' },
+                  openPickerButton: {
+                    sx: {
+                      '&:focus:not(:focus-visible)': {
+                        outline: 'none',
+                        boxShadow: 'none',
+                        border: 'none',
+                      },
                     },
                   },
-                },
-              }}
-            />
-          </Stack>
-        </LocalizationProvider>
+                }}
+              />
+            </Stack>
+          </LazyLocalizationProvider>
+        </Suspense>
       </Paper>
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight={300}>

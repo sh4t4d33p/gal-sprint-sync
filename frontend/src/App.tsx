@@ -1,15 +1,17 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
-import AuthPage from './routes/AuthPage';
-import theme from './theme';
+import { Suspense, lazy } from 'react';
 import { UserProvider } from './UserContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AppLayout from './components/AppLayout';
-import BoardPage from './routes/BoardPage';
-import AnalyticsPage from './routes/AnalyticsPage';
-import UsersPage from './routes/UsersPage';
-import ProfilePage from './routes/ProfilePage';
-import TopUsersPage from './routes/TopUsersPage';
+import theme from './theme';
+
+const BoardPage = lazy(() => import('./routes/BoardPage'));
+const AnalyticsPage = lazy(() => import('./routes/AnalyticsPage'));
+const AuthPage = lazy(() => import('./routes/AuthPage'));
+const ProfilePage = lazy(() => import('./routes/ProfilePage'));
+const TopUsersPage = lazy(() => import('./routes/TopUsersPage'));
+const UsersPage = lazy(() => import('./routes/UsersPage'));
 
 function App() {
   return (
@@ -18,13 +20,13 @@ function App() {
       <UserProvider>
         <Router>
           <Routes>
-            <Route path="/" element={<AuthPage />} />
+            <Route path="/" element={<Suspense fallback={<div>Loading...</div>}><AuthPage /></Suspense>} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-              <Route path="/board" element={<BoardPage />} />
-              <Route path="/analytics" element={<AnalyticsPage />} />
-              <Route path="/users" element={<UsersPage />} />
-              <Route path="/top-users" element={<TopUsersPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/board" element={<Suspense fallback={<div>Loading...</div>}><BoardPage /></Suspense>} />
+              <Route path="/analytics" element={<Suspense fallback={<div>Loading...</div>}><AnalyticsPage /></Suspense>} />
+              <Route path="/users" element={<Suspense fallback={<div>Loading...</div>}><UsersPage /></Suspense>} />
+              <Route path="/top-users" element={<Suspense fallback={<div>Loading...</div>}><TopUsersPage /></Suspense>} />
+              <Route path="/profile" element={<Suspense fallback={<div>Loading...</div>}><ProfilePage /></Suspense>} />
             </Route>
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
