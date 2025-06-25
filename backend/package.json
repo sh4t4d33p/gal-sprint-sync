@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev src/app.ts",
-    "test": "mocha -r ts-node/register -r ./src/__tests__/test-setup.ts src/__tests__/**/*.test.ts"
+    "test": "mocha -r ts-node/register -r ./src/__tests__/test-setup.ts src/__tests__/**/*.test.ts",
+    "build": "tsc",
+    "start": "node dist/app.js"
   },
   "keywords": [],
   "author": "",
