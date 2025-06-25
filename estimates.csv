@@ -1,7 +1,7 @@
 Task ID,Task Description,Estimated Time (hrs),Actual Time (hrs)
 ,Core Tasks,,
-1.1,Create repo, README, initial commit,0.25,0.2
-1.2,Create estimates.csv, commit initial estimates,0.25,0.2
+1.1,Create repo and README and initial commit,0.25,0.2
+1.2,Create estimates.csv and commit initial estimates,0.25,0.2
 2.1,Initialize backend project,0.5,0.5
 2.2,Set up DB connection/config,0.5,0.7
 2.3,Define User model,0.25,0.2
@@ -45,4 +45,4 @@ Task ID,Task Description,Estimated Time (hrs),Actual Time (hrs)
 ,Docker & Deployment,,
 11.1,Write Dockerfile,0.5,0.75
 11.2,Write docker-compose,0.5,0.75
-11.3,Deploy to cloud,0.5,
+11.3,Deploy to cloud,0.5,3.0
