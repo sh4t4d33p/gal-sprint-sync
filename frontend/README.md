@@ -99,12 +99,14 @@ graph TD
 - **App.tsx**: Sets up routing and context providers.
 - **AppLayout**: Main layout with sidebar, header, and content area.
 - **Routes**:
+  - `/` → AuthPage (login/register)
+    - Default entry point for unauthenticated users.
+    - Redirects to `/board` after successful login/registration.
   - `/board` → BoardPage (task board)
   - `/analytics` → AnalyticsPage
   - `/profile` → ProfilePage
   - `/users` → UsersPage (admin only)
   - `/top-users` → TopUsersPage (admin only)
-  - `/login` → AuthPage (login/register)
 - **BoardPage**: Shows Kanban board, uses TaskCard, TaskModal, CreateTaskModal.
 - **TaskCard**: Displays task info, allows edit/delete, drag-and-drop.
 - **TaskModal**: Edit task details, status, assignment (admin), and includes AISuggestButton for AI description suggestions.
